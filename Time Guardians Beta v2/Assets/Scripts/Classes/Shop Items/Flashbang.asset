@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c599489d9820045a4ad990f023525e, type: 3}
+  m_Name: Flashbang
+  m_EditorClassIdentifier: 
+  shopItemName: flashbang
+  displayName: Flash Bang
+  worth: 1
+  image: {fileID: 21300000, guid: 8f9b629b4c632ad4b963918f6cc6045e, type: 3}
+  description: Supplies with 1 Flashbang Grenade. Cannot be put back in extra slot
+    once dropped.
+  mutliPurchasable: 1
+  roleItemType: traitor
+  itemName: flashGrenade
