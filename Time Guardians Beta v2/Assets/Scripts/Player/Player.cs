@@ -279,6 +279,12 @@ public class Player : NetworkBehaviour
     }
 
     [ClientRpc]
+    public void RpcStatus(string id, string status, bool showRole)
+    {
+        PlayerCanvas.canvas.TabMenuEdit(id, status, showRole);
+    }
+
+    [ClientRpc]
     public void RpcPickUp(int pickUpId, string itemName, string itemType)
     {
         inventory.CollectNewItem(pickUpId, itemName, itemType);

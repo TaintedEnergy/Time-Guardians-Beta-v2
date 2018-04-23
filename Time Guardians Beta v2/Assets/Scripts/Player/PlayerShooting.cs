@@ -902,6 +902,7 @@ public class PlayerShooting : NetworkBehaviour
                 NetworkGameInfo.bodies[i].GetComponent<Body>().identified = inspection;
             }
         }
+        player.RpcStatus(id, "Confirmed Dead", true);
     }
 
     public void GetItem(string value)

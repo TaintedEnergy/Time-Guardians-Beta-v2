@@ -791,9 +791,28 @@ public class PlayerCanvas : NetworkBehaviour
 
         CheckRoleVisibility("", currentRole, newItem, playerName == Player.player.playerName);
     }
-    public void TabMenuEdit(string playerName, string roleName, string status)
+    public void TabMenuEdit(string playerName, string status, bool showRole)
     {
-        
+        // Get Item if not got
+        GameObject newItem = null;
+
+        foreach (GameObject g in tabItems)
+        {
+            if (g.name == playerName)
+            {
+                newItem = g;
+            }
+        }
+
+        // Edit Status
+
+        newItem.transform.Find("StatusText").GetComponent<Text>().text = status;
+
+        // Show Role
+        if (showRole)
+        {
+            newItem.transform.Find("RoleImage").gameObject.SetActive(true);
+        }
     }
     public void CheckRoleVisibility (string playerName, string roleName, GameObject newItem, bool isPlayer)
     {
