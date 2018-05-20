@@ -13,16 +13,8 @@ public class ShopObject : MonoBehaviour
 
     public int index;
 
-    private void Update()
-    {
-        if (itemImage.sprite != shopObject.image)
-        {
-            itemImage.sprite = shopObject.image;
-        }
-    }
-
     public void Clicked()
     {
-        PlayerCanvas.canvas.SelectShopItem(index);
+        PlayerCanvas.canvas.SelectShopItem(index, true);
     }
 }

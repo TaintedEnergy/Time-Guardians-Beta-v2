@@ -164,6 +164,9 @@ namespace Prototype.NetworkLobby
         public BackButtonDelegate backDelegate;
         public void GoBackButton()
         {
+            LobbyTopPanel.CursorLocked("", "clear");
+            LobbyTopPanel.CursorLocked("menu", "add");
+
             backDelegate();
 			topPanel.isInGame = false;
         }

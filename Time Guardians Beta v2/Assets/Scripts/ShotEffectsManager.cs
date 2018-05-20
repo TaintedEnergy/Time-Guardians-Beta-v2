@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
+using System.Collections;
 
 public class ShotEffectsManager : MonoBehaviour
 {
@@ -7,7 +9,8 @@ public class ShotEffectsManager : MonoBehaviour
     [SerializeField] ParticleSystem muzzleFlash;
     [SerializeField] AudioSource gunAudio;
     [SerializeField] GameObject impactPrefab;
-    LineRenderer line;
+    List<LineRenderer> lines = new List<LineRenderer>();
+    int line = -1;
 
     // ParticleSystem impactEffect;
 
@@ -18,14 +21,24 @@ public class ShotEffectsManager : MonoBehaviour
         {
             impactEffect = Instantiate(impactPrefab).GetComponent<ParticleSystem>();
         }
-        if (GetComponent<LineRenderer>() != null)
+        if (lines.Count == 0)
         {
-            line = GetComponent<LineRenderer>();
+            if (GetComponent<LineRenderer>() != null)
+            {
+                lines.Add(GetComponent<LineRenderer>());
+            }
+            if (GetComponentsInChildren<LineRenderer>() != null)
+            {
+                foreach (LineRenderer l in GetComponentsInChildren<LineRenderer>())
+                {
+                    lines.Add(l);
+                }
+            }
         }
     }
 
     //Play muzzle flash and audio
-    public void PlayShotEffects()
+    public void PlayShotEffects(Vector3 shootDirection)
     {
         if (muzzleFlash != null)
         {
@@ -33,34 +46,44 @@ public class ShotEffectsManager : MonoBehaviour
             muzzleFlash.Play(true);
         }
 
-        if (line != null)
+        if (lines.Count != 0)
         {
-            line.enabled = true;
+            line++;
+            if (line >= lines.Count)
+            {
+                line -= lines.Count;
+            }
+
+            lines[line].enabled = true;
 
             Quaternion q = transform.rotation;
-            transform.LookAt(impactEffect.gameObject.transform.position);
+            if (muzzleFlash != null)
+            {
+                transform.LookAt(impactEffect.gameObject.transform.position);
+            }
 
-            Ray ray = new Ray(transform.position, transform.forward);
+            Ray ray = new Ray(transform.position, shootDirection);
             RaycastHit hit;
 
-            line.SetPosition(0, ray.origin);
-            if (Physics.Raycast(ray, out hit, 1000))
+            lines[line].SetPosition(0, ray.origin);
+            if (Physics.Raycast(ray, out hit, 500))
             {
-                line.SetPosition(1, hit.point);
+                lines[line].SetPosition(1, hit.point);
             }
             else
             {
-                line.SetPosition(1, ray.GetPoint(1000));
+                lines[line].SetPosition(1, ray.GetPoint(500));
             }
-            Invoke("DisableLine", Time.deltaTime * 3);
 
-            transform.rotation = q;
+            StartCoroutine("DisableLine", line);
         }
     }
 
-    void DisableLine()
+    IEnumerator DisableLine(int value)
     {
-        line.enabled = false;
+        yield return new WaitForSeconds(Time.deltaTime * 3);
+
+        lines[value].enabled = false;
     }
 
     //Play impact effect and target position

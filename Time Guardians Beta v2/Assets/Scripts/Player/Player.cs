@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using Prototype.NetworkLobby;
 
 [System.Serializable]
 public class ToggleEvent : UnityEvent<bool> { }
@@ -53,6 +54,11 @@ public class Player : NetworkBehaviour
         inventory = GetComponent<Inventory>();
 
         EnablePlayer();
+
+        if (isLocalPlayer)
+        {
+            LobbyTopPanel.CursorLocked("", "clear");
+        }
     }
 
     [ServerCallback]
@@ -310,6 +316,8 @@ public class Player : NetworkBehaviour
 
     void DisablePlayer()
     {
+        onToggleShared.Invoke(false);
+
         if (isLocalPlayer)
         {
             SpectatorControl.camera.SetActive(true);
@@ -319,16 +327,12 @@ public class Player : NetworkBehaviour
             {
                 CmdToggleMasked(false);
             }
-            inventory.ResetInv();
 
             PlayerCanvas.canvas.View("", -1, false);
             PlayerCanvas.canvas.ScopeImage(false);
-        }
 
-        onToggleShared.Invoke(false);
+            inventory.ResetInv();
 
-        if (isLocalPlayer)
-        {
             onToggleLocal.Invoke(false);
         }
         else
@@ -341,13 +345,6 @@ public class Player : NetworkBehaviour
 
     void EnablePlayer()
     {
-        if (isLocalPlayer)
-        {
-            SpectatorControl.camera.SetActive(false); 
-
-            CursorLocked(true);
-        }
-
         if (isServer)
         {
             playerHealth.immuneTime = 200;
@@ -356,9 +353,21 @@ public class Player : NetworkBehaviour
         onToggleShared.Invoke(true);
 
         if (isLocalPlayer)
+        {
+            SpectatorControl.camera.SetActive(false);
+
+            LobbyTopPanel.CursorLocked("deathNote", "remove");
+
+            // inventory.ResetInv();
+            inventory.Invoke("ResetInv", 0.5f);
+
             onToggleLocal.Invoke(true);
+        }
+            
         else
+        {
             onToggleRemote.Invoke(true);
+        }
 
         alive = true;
     }
@@ -524,17 +533,17 @@ public class Player : NetworkBehaviour
     {
         DisablePlayer();
 
-        CursorLocked(false);
-
         if (isLocalPlayer)
         {
             PlayerCanvas.canvas.GameWinMenu(roleName, winners);
+
+            LobbyTopPanel.CursorLocked("deathNote", "add");
         }
 
         // PlayerCanvas.canvas.TabMenuClear();
         for (int i = 0; i < NetworkGameInfo.networkGameInfo.playerIds.Count; i++)
         {
-            PlayerCanvas.canvas.CheckRoleVisibility(players[i].playerName, "", null, players[i].playerName == playerName);
+            PlayerCanvas.canvas.CheckRoleVisibility(NetworkGameInfo.networkGameInfo.playerIds[i], "", null, NetworkGameInfo.networkGameInfo.playerIds[i] == playerName);
         }
 
         Invoke("RpcRespawn", 4);
@@ -542,7 +551,6 @@ public class Player : NetworkBehaviour
 
     void BackToLobby()
     {
-        CursorLocked(false);
         FindObjectOfType<NetworkLobbyManager>().SendReturnToLobby();
     }
 
@@ -552,20 +560,6 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             NetworkGameInfo.networkGameInfo.Callback(callback, time);
-        }
-    }
-
-    public static void CursorLocked(bool value)
-    {
-        if (value)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
         }
     }
 }

@@ -28,6 +28,7 @@ public class SimpleSmoothMouseLook : MonoBehaviour
         // Set target direction for the character body to its inital state.
         if (characterBody)
             targetCharacterDirection = characterBody.transform.localRotation.eulerAngles;
+        
     }
 
     public void Recoil(float value)
@@ -46,6 +47,10 @@ public class SimpleSmoothMouseLook : MonoBehaviour
             {
                 recoil = 0;
             }
+        }
+        if (Player.player != null && !Player.player.playerShooting.scoped && sensitivity.x != Options.sensitivity && sensitivity.y != Options.sensitivity)
+        {
+            sensitivity = new Vector2(Options.sensitivity, Options.sensitivity);
         }
     }
 

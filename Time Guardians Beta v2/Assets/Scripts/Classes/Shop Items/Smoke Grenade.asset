@@ -17,6 +17,7 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: d2fa6fe3dfdec8f45b54736bee739403, type: 3}
   description: Supplies with 1 Smoke Cloud Grenade Grenade. Cannot be put back in
     extra slot once dropped.
+  itemCategoryType: support
   mutliPurchasable: 1
-  roleItemType: traitor
+  roleItemType: all
   itemName: smokeGrenade

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
+using Prototype.NetworkLobby;
 
 public class PlayerShooting : NetworkBehaviour
 {
@@ -16,6 +17,8 @@ public class PlayerShooting : NetworkBehaviour
 
     bool couldHit;
     bool cantHit;
+
+    string lastItemFired;
 
     public bool pressScopeToggle;
     public bool scoped;
@@ -130,7 +133,7 @@ public class PlayerShooting : NetworkBehaviour
                 elapseTime = false;
                 elapsedTime = 0;
 
-                if (itemInfo.itemType == "throwable" || itemInfo.itemType == "c4")
+                if (itemInfo.itemType == "throwable")
                 {
                     player.inventory.NewItem(player.inventory.selected, "empty");
                 }
@@ -190,6 +193,10 @@ public class PlayerShooting : NetworkBehaviour
                 couldHit = true;
             }
             else if (itemInfo.delay > 0)
+            {
+                couldHit = true;
+            }
+            else if (itemInfo.sprayWidth > 0)
             {
                 couldHit = true;
             }
@@ -253,13 +260,13 @@ public class PlayerShooting : NetworkBehaviour
                         // Sending to Canvas
                         PlayerCanvas.canvas.ToggleBodyInspection(body.playerName, inspection);
 
-                        Player.CursorLocked(false);
+                        LobbyTopPanel.CursorLocked("itemMenu", "add");
                     }
                     else
                     {
                         PlayerCanvas.canvas.ToggleBodyInspection("", "");
 
-                        Player.CursorLocked(true);
+                        LobbyTopPanel.CursorLocked("itemMenu", "remove");
                     }
 
                     // C4
@@ -271,14 +278,14 @@ public class PlayerShooting : NetworkBehaviour
 
                             c4.OpenMenu();
 
-                            Player.CursorLocked(false);
+                            LobbyTopPanel.CursorLocked("itemMenu", "add");
                         }
                     }
                     else if (PlayerCanvas.canvas.c4Panel.activeInHierarchy)
                     {
                         PlayerCanvas.canvas.C4Recieve(false, false, false, "", "");
 
-                        Player.CursorLocked(true);
+                        LobbyTopPanel.CursorLocked("itemMenu", "remove");
                     }
                 }
                 else
@@ -286,7 +293,7 @@ public class PlayerShooting : NetworkBehaviour
                     PlayerCanvas.canvas.ToggleBodyInspection("", "");
                     PlayerCanvas.canvas.C4Recieve(false, false, false, "", "");
 
-                    Player.CursorLocked(true);
+                    LobbyTopPanel.CursorLocked("itemMenu", "remove");
                 }
             }
         }
@@ -363,9 +370,9 @@ public class PlayerShooting : NetworkBehaviour
                     Ray grabRay = new Ray(firePosition.position, firePosition.forward);
                     bool grabResult = Physics.Raycast(grabRay, out grabHit, grabRange);
 
-                    if (grabResult && grabHit.transform.GetComponent<Rigidbody>() != null && grabHit.transform.GetComponent<Player>() == null)
+                    if (grabResult && grabHit.transform.root.GetComponent<Rigidbody>() != null && grabHit.transform.GetComponent<Player>() == null)
                     {
-                        grabbing = hit.transform.GetComponent<Rigidbody>();
+                        grabbing = hit.transform.root.transform.GetComponent<Rigidbody>();
                         ClientGrab(true);
                         CmdGrabObject(firePosition.position, firePosition.forward, grabRange, true);
                     }
@@ -424,19 +431,42 @@ public class PlayerShooting : NetworkBehaviour
                     {
                         if (!cantHit || (cantHit && !couldHit))
                         {
-                            if (itemInfo.delay != 0)
+                            if (Input.GetMouseButtonDown(0))
                             {
-                                if (itemInfo.itemType == "weapon")
-                                {
-                                    currentItemObject.GetComponent<Animator>().SetTrigger("Fire");
-                                }
-                                if (itemInfo.itemType == "throwable")
-                                {
-                                    currentItemObject.GetComponent<Animator>().SetTrigger("Throw");
-                                }
+                                lastItemFired = itemInfo.itemName;
                             }
 
-                            elapseTime = true;
+                            if (lastItemFired == itemInfo.itemName)
+                            {
+                                if (itemInfo.delay != 0)
+                                {
+                                    if (itemInfo.itemType == "weapon")
+                                    {
+                                        currentItemObject.GetComponent<Animator>().SetTrigger("Fire");
+                                    }
+                                    if (itemInfo.itemType == "throwable")
+                                    {
+                                        currentItemObject.GetComponent<Animator>().SetTrigger("Throw");
+                                    }
+                                }
+
+                                if (itemInfo.delay == 0 && itemInfo.cooldown == 0)
+                                {
+                                    if (itemInfo.itemType == "shop")
+                                    {
+                                        Shop();
+                                    }
+                                    if (itemInfo.itemType == "c4")
+                                    {
+                                        C4(0);
+                                        player.inventory.NewItem(player.inventory.selected, "empty");
+                                    }
+                                }
+                                else
+                                {
+                                    elapseTime = true;
+                                }
+                            }
                         }
                     }
                 }
@@ -444,7 +474,24 @@ public class PlayerShooting : NetworkBehaviour
         }
 
         // Closing Item Menu
-        if ((Input.GetMouseButtonDown(1) || Input.GetKeyDown("e")))
+        if ((Input.GetMouseButtonDown(1)))
+        {
+            if (itemInfo.itemType == "shop" && itemInfo.shopVisual.activeInHierarchy)
+            {
+                Shop();
+            }
+            if (PlayerCanvas.canvas.c4Panel.activeInHierarchy)
+            {
+                PlayerCanvas.canvas.C4Recieve(false, false, false, "", "");
+                LobbyTopPanel.CursorLocked("itemMenu", "remove");
+            }
+            if (PlayerCanvas.canvas.bodyObject.activeInHierarchy)
+            {
+                PlayerCanvas.canvas.ToggleBodyInspection("", "");
+                LobbyTopPanel.CursorLocked("itemMenu", "remove");
+            }
+        }
+        if (Input.GetKeyDown("e"))
         {
             if (itemInfo.itemType == "shop" && itemInfo.shopVisual.activeInHierarchy)
             {
@@ -472,14 +519,6 @@ public class PlayerShooting : NetworkBehaviour
             if (itemInfo.itemType == "throwable")
             {
                 Throw();
-            }
-            if (itemInfo.itemType == "shop")
-            {
-                Shop();
-            }
-            if (itemInfo.itemType == "c4")
-            {
-                C4(0);
             }
             firing = true;
         }
@@ -558,78 +597,92 @@ public class PlayerShooting : NetworkBehaviour
             currentItemObject.GetComponent<Animator>().SetTrigger("Fire");
         }
 
-        RaycastHit hit;
-
-        Ray ray = new Ray(firePosition.position, firePosition.forward);
-        Debug.DrawRay(ray.origin, ray.direction * 3f, Color.red, 1f);
-
-        // Get Range
-        float range = itemInfo.maxHitRange;
-        if (scoped)
+        for (int i = -1; i < itemInfo.sprayCount; i++)
         {
-            // Get Scope Range, if scoping
-            range = itemInfo.scopeMaxHitRange;
-        }
+            RaycastHit hit;
 
-        bool result = Physics.Raycast(ray, out hit, range);
+            Vector3 shootDirection = firePosition.forward;
 
-        if (result)
-        {
-            // Determine Damage based on potential headshots
-            int finalDamage = itemInfo.damage;
-            if (hit.point.y - hit.transform.position.y > 1.5f)
+            if (i >= 0)
             {
-                float floatDamage = finalDamage;
-                floatDamage *= itemInfo.headShotMultiplier;
-
-                finalDamage = (int)floatDamage;
+                shootDirection += new Vector3(Random.Range(-itemInfo.sprayWidth, itemInfo.sprayWidth), Random.Range(-itemInfo.sprayWidth, itemInfo.sprayWidth), Random.Range(-itemInfo.sprayWidth, itemInfo.sprayWidth));
             }
 
-            // No Damage if cant hit
-            if (cantHit)
-            {
-                finalDamage = 0;
-            }
-            
-            // If hit other player
-            PlayerHealth enemy = hit.transform.GetComponent<PlayerHealth>();
-            if (enemy != null && finalDamage != 0)
-            {
-                // Getting Direction
-                int direction = -1;
-                Vector3 toTarget = (transform.position - hit.transform.root.transform.position).normalized;
+            Ray ray = new Ray(firePosition.position, shootDirection);
+            Debug.DrawRay(ray.origin, ray.direction * 10f, Color.red, 1f);
 
-                if (Mathf.Abs(Vector3.Dot(toTarget, hit.transform.root.transform.forward)) > Mathf.Abs(Vector3.Dot(toTarget, hit.transform.root.transform.right)))
+            // Get Range
+            float range = itemInfo.maxHitRange;
+            if (scoped)
+            {
+                // Get Scope Range, if scoping
+                range = itemInfo.scopeMaxHitRange;
+            }
+
+            bool result = Physics.Raycast(ray, out hit, range);
+
+            if (result)
+            {
+                // Determine Damage based on potential headshots
+                int finalDamage = itemInfo.damage;
+                if (hit.point.y - hit.transform.position.y > 1.5f)
                 {
-                    direction = 0;
+                    float floatDamage = finalDamage;
+                    floatDamage *= itemInfo.headShotMultiplier;
+
+                    finalDamage = (int)floatDamage;
                 }
-                else
+
+                // No Damage if cant hit
+                if (cantHit)
                 {
-                    if (Vector3.Dot(toTarget, hit.transform.root.transform.right) > 0)
+                    finalDamage = 0;
+                }
+
+                // If hit other player
+                PlayerHealth enemy = hit.transform.GetComponent<PlayerHealth>();
+                if (enemy != null && finalDamage != 0)
+                {
+                    // Getting Direction
+                    int direction = -1;
+                    Vector3 toTarget = (transform.position - hit.transform.root.transform.position).normalized;
+
+                    if (Mathf.Abs(Vector3.Dot(toTarget, hit.transform.root.transform.forward)) > Mathf.Abs(Vector3.Dot(toTarget, hit.transform.root.transform.right)))
                     {
-                        direction = 1;
+                        direction = 0;
                     }
                     else
                     {
-                        direction = 2;
+                        if (Vector3.Dot(toTarget, hit.transform.root.transform.right) > 0)
+                        {
+                            direction = 1;
+                        }
+                        else
+                        {
+                            direction = 2;
+                        }
+                    }
+
+                    player.CmdSendDamage(enemy.GetComponent<Player>().playerName, finalDamage, direction, player.playerName);
+                }
+
+                Rigidbody hitRigid = hit.transform.root.transform.GetComponent<Rigidbody>();
+                if (hitRigid != null)
+                {
+                    if (enemy == null || (enemy != null && itemInfo.canPushPlayers))
+                    {
+                        CmdGiveVelocity(firePosition.position, shootDirection, itemInfo.maxHitRange, itemInfo.hitStrength);
                     }
                 }
-
-                player.CmdSendDamage(enemy.GetComponent<Player>().playerName, finalDamage, direction, player.playerName);
             }
-
-            Rigidbody hitRigid = hit.transform.root.transform.GetComponent<Rigidbody>();
-            if (hitRigid != null)
+            else
             {
-                if (enemy == null || (enemy != null && itemInfo.canPushPlayers))
-                {
-                    CmdGiveVelocity(firePosition.position, firePosition.forward, itemInfo.maxHitRange, itemInfo.hitStrength);
-                }
+                hit.point = firePosition.position + (shootDirection * itemInfo.scopeMaxHitRange);
             }
-        }
 
-        ProcessShotEffects(result, hit.point);
-        CmdProcessShotEffects(result, hit.point);
+            ProcessShotEffects(result, hit.point, shootDirection);
+            CmdProcessShotEffects(result, hit.point, shootDirection);
+        }
     }
 
     void Throw ()
@@ -654,8 +707,16 @@ public class PlayerShooting : NetworkBehaviour
         {
             PlayerCanvas.canvas.ToggleShop("");
         }
+        
+        if (itemInfo.shopVisual.activeInHierarchy)
+        {
+            LobbyTopPanel.CursorLocked("itemMenu", "remove");
+        }
+        else
+        {
+            LobbyTopPanel.CursorLocked("itemMenu", "add");
+        }
 
-        Player.CursorLocked(itemInfo.shopVisual.activeInHierarchy);
         itemInfo.shopVisual.SetActive(!itemInfo.shopVisual.activeInHierarchy);
     }
 
@@ -801,9 +862,9 @@ public class PlayerShooting : NetworkBehaviour
                 Ray ray = new Ray(pos, dir);
                 bool result = Physics.Raycast(ray, out hit, range);
 
-                if (result && hit.transform.GetComponent<Rigidbody>() != null && hit.transform.GetComponent<Player>() == null)
+                if (result && hit.transform.root.transform.GetComponent<Rigidbody>() != null && hit.transform.GetComponent<Player>() == null)
                 {
-                    GrabObject(hit.transform.GetComponent<Rigidbody>());
+                    GrabObject(hit.transform.root.transform.GetComponent<Rigidbody>());
                 }
             }
 
@@ -887,7 +948,7 @@ public class PlayerShooting : NetworkBehaviour
 
             if (hit.transform.root.transform.GetComponent<Throwable>() != null && hit.transform.root.transform.GetComponent<Throwable>().selectedItem.name == "c4")
             {
-                hit.transform.root.transform.GetComponent<Throwable>().selectedItem.GetComponent<C4>().forceExplode = true;
+                hit.transform.root.transform.GetComponent<Throwable>().RpcForceExplode();
             }
         }
     }
@@ -977,11 +1038,11 @@ public class PlayerShooting : NetworkBehaviour
         }
     }
 
-    void ProcessShotEffects(bool playImpact, Vector3 point)
+    void ProcessShotEffects(bool playImpact, Vector3 point, Vector3 shootDirection)
     {
         if (currentEffect != null)
         {
-            currentEffect.PlayShotEffects();
+            currentEffect.PlayShotEffects(shootDirection);
 
             if (playImpact)
             {
@@ -991,13 +1052,13 @@ public class PlayerShooting : NetworkBehaviour
     }
 
     [Command]
-    void CmdProcessShotEffects (bool playImpact, Vector3 point)
+    void CmdProcessShotEffects (bool playImpact, Vector3 point, Vector3 shootDirection)
     {
-        RpcProcessShotEffects(playImpact, point);
+        RpcProcessShotEffects(playImpact, point, shootDirection);
     }
 
     [ClientRpc]
-    void RpcProcessShotEffects(bool playImpact, Vector3 point)
+    void RpcProcessShotEffects(bool playImpact, Vector3 point, Vector3 shootDirection)
     {
         if (currentEffect != null)
         {
@@ -1008,7 +1069,7 @@ public class PlayerShooting : NetworkBehaviour
                     currentEffect.PlayImpactEffect(point);
                 }
 
-                currentEffect.PlayShotEffects();
+                currentEffect.PlayShotEffects(shootDirection);
             }
         }
     }

@@ -59,6 +59,9 @@ public class ItemInfo : MonoBehaviour
     public float scopeWalkRecoil;
     public bool scopeImage;
 
+    public int sprayCount;
+    public float sprayWidth;
+
     public float hitStrength;
     public bool canPushPlayers;
 

@@ -98,6 +98,7 @@ public class PlayerCanvas : NetworkBehaviour
     [Header("Shop")]
 
     public string shopType;
+    public string shopViewType;
     public GameObject shopObject;
     public GameObject shopPanel;
     public Image[] coloredShopImages;
@@ -106,15 +107,15 @@ public class PlayerCanvas : NetworkBehaviour
 
     List<GameObject> icons = new List<GameObject>();
 
-    public enum ShopSortingTab { All, Weapons, Support, Misc};
-    public ShopSortingTab shopSortingTab;
-
-    public ShopContents shop;
+    public string currentCategory;
+    public int currentSortMethod;
+    public int[] sortMethodDirection = new int[3];
+    public GameObject[] sortIcons;
 
     // From old ShopController Script
 
     public static ShopContents selectedShop;
-    public ShopContents traitorShop;
+    public ShopItemInfo[] allShopItems;
 
     int lastShopIndex;
     float lastShopClick = -1;
@@ -926,89 +927,88 @@ public class PlayerCanvas : NetworkBehaviour
 
         icons.Clear();
 
-        //Spawn in all Icons
-        if (shopSortingTab == ShopSortingTab.All)
+        // Spawn in all Icons
+        if (selectedShop.shopName != null && selectedShop.shopName != "")
         {
-            if (selectedShop.shopName != "" && selectedShop.shopName != null)
+
+            for (int i = 0; i < Category().Count; i++)
             {
-                for (int i = 0; i < selectedShop.allItems.Length; i++)
+                // Spawn Shop Object and it's Essential Values
+                GameObject newOjbect = Instantiate(shopIcon, IconHolder.transform);
+                ShopObject shopObj = newOjbect.GetComponent<ShopObject>();
+                
+                shopObj.shopObject = Category()[i];
+                shopObj.index = i;
+                icons.Add(newOjbect);
+
+                /// 
+                // Visuals
+                //
+
+                Image img = shopObj.GetComponent<Image>();
+                shopObj.itemImage.sprite = shopObj.shopObject.image;
+
+                if (shopObj.shopObject.roleItemType == "all")
                 {
-                    // Spawn Shop Object and it's Essential Values
-                    GameObject newOjbect = Instantiate(shopIcon, IconHolder.transform);
-                    ShopObject shopObj = newOjbect.GetComponent<ShopObject>();
-
-                    shopObj.shopObject = selectedShop.allItems[i];
-                    shopObj.index = i;
-                    icons.Add(newOjbect);
-
-                    /// 
-                    // Visuals
-                    //
-
-                    Image img = shopObj.GetComponent<Image>();
-
-                    if (shopObj.shopObject.roleItemType == "all")
+                    if (shopObj.shopObject.worth == 2)
                     {
+                        img.color = new Color(0.75f, 0.75f, 0.75f, 1);
+                    }
+
+                    if (shopObj.shopObject.worth == 3)
+                    {
+                        img.color = new Color(1, 1, 1, 1);
+                    }
+                }
+                else
+                {
+                    if (shopObj.shopObject.roleItemType == "traitor")
+                    {
+                        if (shopObj.shopObject.worth == 1)
+                        {
+                            img.color = new Color(0.5f, 0.25f, 0.25f, 1);
+                        }
                         if (shopObj.shopObject.worth == 2)
                         {
-                            img.color = new Color(0.75f, 0.75f, 0.75f, 1);
+                            img.color = new Color(0.5f, 0, 0, 1);
                         }
-
                         if (shopObj.shopObject.worth == 3)
                         {
-                            img.color = new Color(1,1,1,1);
+                            img.color = new Color(1, 0, 0, 1);
                         }
                     }
-                    else
+                    if (shopObj.shopObject.roleItemType == "detective")
                     {
-                        if (shopObj.shopObject.roleItemType == "traitor")
+                        if (shopObj.shopObject.worth == 1)
                         {
-                            if (shopObj.shopObject.worth == 1)
-                            {
-                                img.color = new Color(0.5f, 0.25f, 0.25f, 1);
-                            }
-                            if (shopObj.shopObject.worth == 2)
-                            {
-                                img.color = new Color(0.5f, 0, 0, 1);
-                            }
-                            if (shopObj.shopObject.worth == 3)
-                            {
-                                img.color = new Color(1, 0, 0, 1);
-                            }
+                            img.color = new Color(0.25f, 0.25f, 0.5f, 1);
                         }
-                        if (shopObj.shopObject.roleItemType == "detective")
+                        if (shopObj.shopObject.worth == 2)
                         {
-                            if (shopObj.shopObject.worth == 1)
-                            {
-                                img.color = new Color(0.25f, 0.25f, 0.5f, 1);
-                            }
-                            if (shopObj.shopObject.worth == 2)
-                            {
-                                img.color = new Color(0, 0, 0.5f, 1);
-                            }
-                            if (shopObj.shopObject.worth == 3)
-                            {
-                                img.color = new Color(0, 0, 1, 1);
-                            }
+                            img.color = new Color(0, 0, 0.5f, 1);
+                        }
+                        if (shopObj.shopObject.worth == 3)
+                        {
+                            img.color = new Color(0, 0, 1, 1);
                         }
                     }
-
-                    // Can't afford
-
-                    if (shopObj.shopObject.worth > Player.player.inventory.crystals)
-                    {
-                        img.color = new Color(img.color.r, img.color.g, img.color.b, 0.1f);
-                        shopObj.itemImage.color = new Color(img.color.r, img.color.g, img.color.b, 0.1f);
-                    }
-
-                    // On Special or Favourited
-
-                    shopObj.favouriteImage.gameObject.SetActive(false);
-                    shopObj.onSpecialImage.gameObject.SetActive(false);
                 }
 
-                SelectShopItem(0);
+                // Can't afford
+
+                if (shopObj.shopObject.worth > Player.player.inventory.crystals)
+                {
+                    img.color = new Color(img.color.r, img.color.g, img.color.b, 0.1f);
+                    shopObj.itemImage.color = new Color(img.color.r, img.color.g, img.color.b, 0.1f);
+                }
+
+                // On Special or Favourited
+
+                shopObj.favouriteImage.gameObject.SetActive(false);
+                shopObj.onSpecialImage.gameObject.SetActive(false);
             }
+
+            SelectShopItem(0, false);
         }
     }
     public void ToggleShop(string value)
@@ -1058,15 +1058,41 @@ public class PlayerCanvas : NetworkBehaviour
 
     public void SetShopType(string type)
     {
-        if (type == "traitor")
+        selectedShop = new ShopContents();
+
+        // Putting items into shop
+        currentCategory = "all";
+        currentSortMethod = 0;
+        for (int i = 0; i < sortMethodDirection.Length; i++)
         {
-            selectedShop = traitorShop;
+            sortMethodDirection[i] = 0;
         }
 
-        // Empty
-        if (type == "" || type == null)
+        if (type != null && type != "")
         {
-            selectedShop = new ShopContents();
+            selectedShop.shopName = type;
+
+            for (int i = 0; i < allShopItems.Length; i++)
+            {
+                if (allShopItems[i].roleItemType == type || allShopItems[i].roleItemType == "all")
+                {
+                    // Adding to correct categories
+                    selectedShop.allItems.Add(allShopItems[i]);
+
+                    if (allShopItems[i].itemCategoryType == "weapon")
+                    {
+                        selectedShop.weaponsItems.Add(allShopItems[i]);
+                    }
+                    if (allShopItems[i].itemCategoryType == "support")
+                    {
+                        selectedShop.supportItems.Add(allShopItems[i]);
+                    }
+                    if (allShopItems[i].itemCategoryType == "misc")
+                    {
+                        selectedShop.miscItems.Add(allShopItems[i]);
+                    }
+                }
+            }
         }
 
         DrawMenu();
@@ -1077,16 +1103,16 @@ public class PlayerCanvas : NetworkBehaviour
         PurchaseItem(lastShopIndex);
     }
 
-    public void SelectShopItem(int index)
+    public void SelectShopItem(int index, bool quickSelect)
     {
         // Set Visuals
-        shopItemNameText.text = selectedShop.allItems[index].displayName;
-        shopItemDescriptionText.text = selectedShop.allItems[index].description;
-        shopItemWorthText.text = "Purchase: " + selectedShop.allItems[index].worth + " Crystals";
+        shopItemNameText.text = Category()[index].displayName;
+        shopItemDescriptionText.text = Category()[index].description;
+        shopItemWorthText.text = "Purchase: " + Category()[index].worth + " Crystals";
 
 
         // Quick Purchase
-        if ((Time.time - lastShopClick) < 0.3 && lastShopIndex == index)
+        if ((Time.time - lastShopClick) < 0.3 && lastShopIndex == index && quickSelect)
         {
             PurchaseItem(index);
         }
@@ -1098,10 +1124,10 @@ public class PlayerCanvas : NetworkBehaviour
 
     void PurchaseItem (int index)
     {
-        if (Player.player.inventory.crystals >= selectedShop.allItems[index].worth)
+        if (Player.player.inventory.crystals >= Category()[index].worth)
         {
             // Take Away the worth of the item to the player's crystals
-            Player.player.inventory.crystals -= selectedShop.allItems[index].worth;
+            Player.player.inventory.crystals -= Category()[index].worth;
             // Find Empty Slot
             for (int i = 5; i < 10; i++)
             {
@@ -1109,13 +1135,83 @@ public class PlayerCanvas : NetworkBehaviour
                 {
                     // Give the Item to the player
                     Debug.Log("Empty Slot");
-                    Player.player.inventory.NewItem(i, selectedShop.allItems[index].itemName);
+                    Player.player.inventory.NewItem(i, Category()[index].itemName);
                     i = 10;
 
                     DrawMenu();
                 }
             }
         }
+    }
+
+    public void SelectCategory(string value)
+    {
+        bool done = false;
+        if (currentCategory != value)
+        {
+            done = true;
+        }
+
+        currentCategory = value;
+        if (done)
+        {
+            DrawMenu();
+        }
+    }
+
+    public void SelectSortType(int value)
+    {
+        bool done = false;
+        if (currentSortMethod != value)
+        {
+            done = true;
+        }
+
+        currentSortMethod = value;
+        if (done)
+        {
+            DrawMenu();
+        }
+    }
+    public void SetSortDirection(int type)
+    {
+        sortMethodDirection[type] -= 2*sortMethodDirection[type] +1;
+        sortIcons[type].transform.eulerAngles += new Vector3(180,0,0);
+
+        if (currentSortMethod == type)
+        {
+            DrawMenu();
+        }
+    }
+
+    public List<ShopItemInfo> Category()
+    {
+        // Get Category
+
+        List<ShopItemInfo> category = new List<ShopItemInfo>();
+
+        if (currentCategory == "all") { category = selectedShop.allItems; }
+        if (currentCategory == "weapons") { category = selectedShop.weaponsItems; }
+        if (currentCategory == "support") { category = selectedShop.supportItems; }
+        if (currentCategory == "misc") { category = selectedShop.miscItems; }
+
+        // Sort Category
+
+        category.Sort((p1, p2) => p1.displayName.CompareTo(p2.displayName));
+
+        if (currentSortMethod == 0)
+        {
+            if (sortMethodDirection[currentSortMethod] == 0)
+            {
+                category.Sort((p1, p2) => p1.worth.CompareTo(p2.worth));
+            }
+            else
+            {
+                category.Sort((p1, p2) => -p1.worth.CompareTo(-p2.worth));
+            }
+        }
+
+        return category;
     }
 
     /// <summary>

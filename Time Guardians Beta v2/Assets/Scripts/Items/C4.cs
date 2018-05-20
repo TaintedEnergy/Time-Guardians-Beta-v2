@@ -9,8 +9,6 @@ public class C4 : NetworkBehaviour
     [SyncVar] public bool armed;
     [SyncVar] public bool planted;
 
-    [SyncVar] public bool forceExplode;
-
     bool countingDown;
 
     int time = 45;
@@ -32,11 +30,6 @@ public class C4 : NetworkBehaviour
         {
             CountDown();
             countingDown = true;
-        }
-        if (forceExplode)
-        {
-            time = 0;
-            transform.root.GetComponent<Throwable>().StartCoroutine("C4Explode");
         }
     }
 

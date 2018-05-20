@@ -142,7 +142,7 @@ public class Throwable : NetworkBehaviour
                     {
                         if (Vector3.Distance(transform.position, hit.transform.position) < 3f)
                         {
-                            col.transform.root.transform.GetComponent<Throwable>().selectedItem.GetComponent<C4>().forceExplode = true;
+                            col.transform.root.transform.GetComponent<Throwable>().RpcForceExplode();
                         }
                     }
                 }
@@ -214,9 +214,12 @@ public class Throwable : NetworkBehaviour
         yield return new WaitForSeconds(time);
 
         // Check Flashbang Effect
-        if (selectedItem.GetComponentInChildren<Renderer>().isVisible)
+
+        GameObject target = Player.player.playerShooting.cameras[0].transform.gameObject;
+        Vector3 toTarget = (transform.position - target.transform.position).normalized;
+        if (Vector3.Dot(toTarget, target.transform.root.transform.forward) > 1 - (target.GetComponent<Camera>().fieldOfView/90))
         {
-            selectedItem.transform.LookAt(Player.player.playerShooting.cameras[0].transform.position);
+            selectedItem.transform.LookAt(target.transform.position);
             RaycastHit hit;
 
             Ray ray = new Ray(selectedItem.transform.position, selectedItem.transform.forward);
@@ -238,6 +241,12 @@ public class Throwable : NetworkBehaviour
         yield return new WaitForSeconds(1);
 
         Destroy(flashParticleEffect);
+    }
+
+    [ClientRpc]
+    public void RpcForceExplode()
+    {
+        StartCoroutine("C4Explode");
     }
 
     IEnumerator C4Explode()
@@ -267,7 +276,7 @@ public class Throwable : NetworkBehaviour
                 {
                     if (Vector3.Distance(transform.position, col.transform.position) < 8f)
                     {
-                        col.transform.root.transform.GetComponent<Throwable>().selectedItem.GetComponent<C4>().forceExplode = true;
+                        col.transform.root.transform.GetComponent<Throwable>().RpcForceExplode();
                     }
                 }
             }

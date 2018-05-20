@@ -10,6 +10,7 @@ public class ShopItemInfo : ScriptableObject
     public int worth;
     public Sprite image;
     public string description;
+    public string itemCategoryType;
 
     public bool mutliPurchasable;
     public string roleItemType;

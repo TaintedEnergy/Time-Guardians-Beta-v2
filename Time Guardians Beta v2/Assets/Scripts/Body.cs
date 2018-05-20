@@ -31,5 +31,9 @@ public class Body : NetworkBehaviour
         {
             rigid.velocity /= rigid.velocity.magnitude / maxVelocity;
         }
+        if (transform.position.y < -1000f && !rigid.isKinematic)
+        {
+            rigid.isKinematic = true;
+        }
     }
 }
