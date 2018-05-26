@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
     public float strafeSpeed = 4;
     public float jumpPower = 1;
     public float settableSprintMultiplier = 1.6f;
-    float sprintMultiplier = 1;
+    public float sprintMultiplier = 1;
 
     public float height = 1.8f;
 
@@ -115,7 +115,7 @@ public class PlayerMovement : MonoBehaviour
         jumpTime++;
 
         // Sprinting
-        if ((Input.GetButton("Fire3") && player == null) || (Input.GetButton("Fire3") && player != null && !player.playerShooting.scoped))
+        if (Input.GetButton("Fire3") && Input.GetKey("w") && !Input.GetKey("s") && !Input.GetKey("a") && !Input.GetKey("d") && player != null && !player.playerShooting.scoped)
         {
             sprintMultiplier = settableSprintMultiplier;
         }
@@ -172,7 +172,7 @@ public class PlayerMovement : MonoBehaviour
             // Drag
             if (player.playerShooting.itemInfo != null)
             {
-                if (Input.GetButton("Fire3"))
+                if (sprintMultiplier > 1)
                 {
                     itemDragMultiplier = player.playerShooting.itemInfo.sprintDrag;
                 }
@@ -301,7 +301,7 @@ public class PlayerMovement : MonoBehaviour
                     stepTime += 2;
 
                     // If sprinting
-                    if (Input.GetButton("Fire3") && (!player.playerShooting.scoped || (player.playerShooting.scoped && player.playerShooting.itemInfo.canUseWhileSprinting)))
+                    if (sprintMultiplier > 1 && (!player.playerShooting.scoped || (player.playerShooting.scoped && player.playerShooting.itemInfo.canUseWhileSprinting)))
                     {
                         stepTime += Random.Range(1f, 1.5f);
 

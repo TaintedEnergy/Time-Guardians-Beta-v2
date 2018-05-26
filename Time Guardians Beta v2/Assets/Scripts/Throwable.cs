@@ -69,7 +69,7 @@ public class Throwable : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (hitElapsedTime > 5 && collision.transform.root.transform.gameObject.name != Player.player.transform.gameObject.name && selectedItem.GetComponent<AudioSource>() != null)
+        if (hitElapsedTime > 5 && collision.transform.root.transform.gameObject.name != Player.player.transform.gameObject.name && selectedItem != null && selectedItem.GetComponent<AudioSource>() != null)
         {
             selectedItem.GetComponent<AudioSource>().Play();
         }
@@ -189,7 +189,7 @@ public class Throwable : NetworkBehaviour
 
     IEnumerator Smoke(int time)
     {
-        yield return new WaitForSeconds(time);
+        /* yield return new WaitForSeconds(time);
 
         smokeParticleEffect.SetActive(true);
         selectedItem.SetActive(false);
@@ -205,7 +205,26 @@ public class Throwable : NetworkBehaviour
         var em = ps.emission;
         em.SetBursts(new ParticleSystem.Burst[] { });
 
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(3);
+
+        smokeParticleEffect.transform.name = "Fading Smoke";
+
+        yield return new WaitForSeconds(2);
+
+        Destroy(smokeParticleEffect); */
+
+        yield return new WaitForSeconds(time);
+
+        smokeParticleEffect.SetActive(true);
+        selectedItem.SetActive(false);
+        smokedGrenadeObject.SetActive(true);
+        smokeParticleEffect.transform.parent = null;
+        smokeParticleEffect.transform.rotation = Quaternion.identity;
+        smokeParticleEffect.transform.position += new Vector3(0,0.5f,0);
+
+        yield return new WaitForSeconds(18);
+        smokeParticleEffect.transform.name = "Fading Smoke";
+        yield return new WaitForSeconds(3);
         Destroy(smokeParticleEffect);
     }
 
@@ -217,17 +236,25 @@ public class Throwable : NetworkBehaviour
 
         GameObject target = Player.player.playerShooting.cameras[0].transform.gameObject;
         Vector3 toTarget = (transform.position - target.transform.position).normalized;
-        if (Vector3.Dot(toTarget, target.transform.root.transform.forward) > 1 - (target.GetComponent<Camera>().fieldOfView/90))
+
+        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(Player.player.playerShooting.cameras[0]);
+
+        // Within Camera Bounds
+        if (GeometryUtility.TestPlanesAABB(planes, selectedItem.GetComponent<Collider>().bounds))
         {
-            selectedItem.transform.LookAt(target.transform.position);
-            RaycastHit hit;
-
-            Ray ray = new Ray(selectedItem.transform.position, selectedItem.transform.forward);
-            bool result = Physics.Raycast(ray, out hit, 500f);
-
-            if (result && hit.transform.root.transform.GetComponent<Rigidbody>() != null)
+            // Scoped Bounds
+            if (!PlayerCanvas.canvas.scopeImage.activeInHierarchy || (PlayerCanvas.canvas.scopeImage.activeInHierarchy && Vector3.Dot(toTarget, Player.player.playerShooting.cameras[0].transform.forward) > 1 - (target.GetComponent<Camera>().fieldOfView / 90) * 0.3f))
             {
-                PlayerCanvas.canvas.Flashbang();
+                selectedItem.transform.LookAt(target.transform.position);
+                RaycastHit hit;
+
+                Ray ray = new Ray(selectedItem.transform.position, selectedItem.transform.forward);
+                bool result = Physics.Raycast(ray, out hit, 30f);
+
+                if (result && hit.transform.root.transform.GetComponent<Rigidbody>() != null)
+                {
+                    PlayerCanvas.canvas.Flashbang();
+                }
             }
         }
 

@@ -15,5 +15,8 @@ public class ShopItemInfo : ScriptableObject
     public bool mutliPurchasable;
     public string roleItemType;
 
+    public bool favourite;
+    public bool onSpecial;
+
     public string itemName;
 }

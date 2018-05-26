@@ -147,6 +147,13 @@ public class Player : NetworkBehaviour
 
                     PlayerCanvas.canvas.SetShopType("traitor");
                 }
+                if (clientRole == "detective")
+                {
+                    inventory.NewItem(4, "detectiveShop");
+                    inventory.crystals = 2;
+
+                    PlayerCanvas.canvas.SetShopType("detective");
+                }
                 if (clientRole == "serial_killer")
                 {
                     inventory.NewItem(4, "bloodyKnife");
@@ -248,10 +255,18 @@ public class Player : NetworkBehaviour
         {
             if (players[i].playerName == killer && (killer != null && killer != "") && NetworkGameInfo.networkGameInfo.gameOn)
             {
+                // Change Role To Amnesiac
                 if (NetworkGameInfo.networkGameInfo.roles[i] == "amnesiac")
                 {
                     players[i].ChangeRole(role);
                     players[i].RpcChangeRoleVisual(role);
+                }
+
+
+                // Check Role Visibility
+                foreach (Player p in players)
+                {
+                    p.RpcCheckTabVis(killer, role);
                 }
             }
         }
@@ -285,6 +300,12 @@ public class Player : NetworkBehaviour
     }
 
     [ClientRpc]
+    void RpcCheckTabVis(string playerName, string roleName)
+    {
+        PlayerCanvas.canvas.CheckRoleVisibility(playerName, roleName, null);
+    }
+
+    [ClientRpc]
     public void RpcStatus(string id, string status, bool showRole)
     {
         PlayerCanvas.canvas.TabMenuEdit(id, status, showRole);
@@ -298,20 +319,23 @@ public class Player : NetworkBehaviour
     [Command]
     public void CmdRequestPickupDestroy(int pickUpId)
     {
-        DestroyPickUp(pickUpId);
-    }
-    [Server]
-    public void DestroyPickUp(int pickUpId)
-    {
         for (int i = 0; i < PickUp.pickUps.Count; i++)
         {
             if (PickUp.pickUps[i].GetComponent<PickUp>().id == pickUpId)
             {
-                NetworkServer.Destroy(PickUp.pickUps[i]);
+                DestroyPickup(PickUp.pickUps[i]);
+                PickUp.pickUps[i].GetComponent<PickUp>().RpcDisable();
                 PickUp.pickUps.RemoveAt(i);
             }
         }
     }
+
+    void DestroyPickup(GameObject obj)
+    {
+        NetworkServer.Destroy(obj);
+    }
+
+
 
 
     void DisablePlayer()
@@ -358,9 +382,6 @@ public class Player : NetworkBehaviour
 
             LobbyTopPanel.CursorLocked("deathNote", "remove");
 
-            // inventory.ResetInv();
-            inventory.Invoke("ResetInv", 0.5f);
-
             onToggleLocal.Invoke(true);
         }
             
@@ -383,19 +404,19 @@ public class Player : NetworkBehaviour
 
             inventory.Die();
             CmdRequestBodyDrop(transform.position, transform.rotation, playerName);
-
-            // Play Death Sound
-
-            Vector3 pos = new Vector3();
-            Vector2 volume = new Vector2(0.3f, 0.5f);
-            Vector2 pitch = new Vector2(0.8f, 1.2f);
-
-            player.playerSounds.PlaySound("death", pos, volume, pitch, 20, false);
         }
         if (playerControllerId == -1)
         {
             anim.SetTrigger("Died");
         }
+
+        // Play Death Sound
+
+        Vector3 pos = new Vector3();
+        Vector2 volume = new Vector2(0.3f, 0.5f);
+        Vector2 pitch = new Vector2(0.8f, 1.2f);
+
+        player.playerSounds.PlaySound("death", pos, volume, pitch, 20, false);
 
         DisablePlayer();
 
@@ -543,7 +564,7 @@ public class Player : NetworkBehaviour
         // PlayerCanvas.canvas.TabMenuClear();
         for (int i = 0; i < NetworkGameInfo.networkGameInfo.playerIds.Count; i++)
         {
-            PlayerCanvas.canvas.CheckRoleVisibility(NetworkGameInfo.networkGameInfo.playerIds[i], "", null, NetworkGameInfo.networkGameInfo.playerIds[i] == playerName);
+            PlayerCanvas.canvas.CheckRoleVisibility(NetworkGameInfo.networkGameInfo.playerIds[i], "", null);
         }
 
         Invoke("RpcRespawn", 4);

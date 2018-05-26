@@ -136,4 +136,10 @@ public class PickUp : NetworkBehaviour
     {
         touchingPlayer = null;
     }
+
+    [ClientRpc]
+    public void RpcDisable()
+    {
+        item.obj.SetActive(false);
+    }
 }

@@ -425,7 +425,7 @@ public class PlayerShooting : NetworkBehaviour
             // Left-Click or Left-Clicking
             if (((Input.GetMouseButtonDown(0) && !itemInfo.automatic) || (Input.GetMouseButton(0) && itemInfo.automatic)) && !elapseTime && scopeTransitionTime == 0)
             {
-                if (itemInfo.canUseWhileSprinting || (!itemInfo.canUseWhileSprinting && (!Input.GetButton("Fire3") || (Input.GetButton("Fire3") && scoped))))
+                if (itemInfo.canUseWhileSprinting || (!itemInfo.canUseWhileSprinting && (Player.player.playerMovement.sprintMultiplier == 1 || (Player.player.playerMovement.sprintMultiplier > 1 && scoped))))
                 {
                     if (NetworkGameInfo.networkGameInfo != null && (NetworkGameInfo.networkGameInfo.gameOn || (!NetworkGameInfo.networkGameInfo.gameOn && !couldHit)))
                     {
@@ -533,7 +533,7 @@ public class PlayerShooting : NetworkBehaviour
             holdMovement.SetBool("Walking", false);
         }
         // Set Sprint animation
-        if (Input.GetButton("Fire3") && !scoped && rigid.velocity.magnitude > 1)
+        if (Player.player.playerMovement.sprintMultiplier > 1 && !scoped && rigid.velocity.magnitude > 1)
         {
             if (itemInfo.hasSprintAnimation)
             {
@@ -568,7 +568,7 @@ public class PlayerShooting : NetworkBehaviour
         player.playerSounds.PlaySound(itemInfo.itemName, pos, volume, pitch, itemInfo.maxHitRange, true);
 
         // If Sprinting, do sprint recoil
-        if ((Input.GetButton("Fire3") && player == null) || (Input.GetButton("Fire3") && player != null && !player.playerShooting.scoped))
+        if (player.playerMovement.sprintMultiplier > 1 && player != null && !player.playerShooting.scoped)
         {
             cameraScript.Recoil(itemInfo.sprintRecoil);
         }

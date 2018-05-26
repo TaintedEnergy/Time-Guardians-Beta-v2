@@ -4,7 +4,8 @@ using System.Collections;
 
 public class ShotEffectsManager : MonoBehaviour
 {
-    public static ParticleSystem impactEffect;
+    public static ParticleSystem[] impactEffect;
+    public static int impactIndex;
 
     [SerializeField] ParticleSystem muzzleFlash;
     [SerializeField] AudioSource gunAudio;
@@ -19,7 +20,13 @@ public class ShotEffectsManager : MonoBehaviour
     {
         if (impactEffect == null)
         {
-            impactEffect = Instantiate(impactPrefab).GetComponent<ParticleSystem>();
+            int size = 10;
+            impactEffect = new ParticleSystem[size];
+
+            for (int i = 0; i < size; i++)
+            {
+                impactEffect[i] = Instantiate(impactPrefab).GetComponent<ParticleSystem>();
+            }
         }
         if (lines.Count == 0)
         {
@@ -59,7 +66,7 @@ public class ShotEffectsManager : MonoBehaviour
             Quaternion q = transform.rotation;
             if (muzzleFlash != null)
             {
-                transform.LookAt(impactEffect.gameObject.transform.position);
+                transform.LookAt(impactEffect[impactIndex].gameObject.transform.position);
             }
 
             Ray ray = new Ray(transform.position, shootDirection);
@@ -89,8 +96,14 @@ public class ShotEffectsManager : MonoBehaviour
     //Play impact effect and target position
     public void PlayImpactEffect(Vector3 impactPosition)
     {
-        impactEffect.transform.position = impactPosition;
-        impactEffect.Stop();
-        impactEffect.Play();
+        impactEffect[impactIndex].transform.position = impactPosition;
+        impactEffect[impactIndex].Stop();
+        impactEffect[impactIndex].Play();
+
+        impactIndex++;
+        if (impactIndex >= impactEffect.Length)
+        {
+            impactIndex = 0;
+        }
     }
 }
