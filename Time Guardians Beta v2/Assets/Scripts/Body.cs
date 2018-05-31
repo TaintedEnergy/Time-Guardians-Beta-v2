@@ -14,6 +14,14 @@ public class Body : NetworkBehaviour
     private void Start()
     {
         rigid = GetComponent<Rigidbody>();
+
+        foreach (Player p in Player.players)
+        {
+            if (p.playerName == playerName)
+            {
+                p.GetComponentInChildren<RendererToggler>().DisableRenderers();
+            }
+        }
     }
 
     void OnNameChange(string value)

@@ -58,6 +58,7 @@ public class PlayerCanvas : NetworkBehaviour
     public GameObject smokeImage;
 
     int flashTime;
+    int bangTime;
     public bool smoked;
     [SerializeField] int smokeTime;
 
@@ -429,18 +430,19 @@ public class PlayerCanvas : NetworkBehaviour
         inventoryObject.SetActive(!value);
     }
 
-    public void Flashbang()
+    public void Flashbang(int flash, int bang)
     {
         flashImage.SetActive(true);
-        if (flashTime == 0)
-        {
-            flashTime = 1;
-        }
+
+        flashTime = flash;
+        bangTime = bang;
         // Specific #FIX
     }
 
     void Flashbanging()
     {
+        // Flashing (Light)
+
         if (flashTime > 0)
         {
             // Unflashing
@@ -448,20 +450,12 @@ public class PlayerCanvas : NetworkBehaviour
             {
                 flashImage.GetComponent<Image>().color = new Color(1, 1, 1, 1 - ((float)flashTime - 500) / 300);
             }
-            // Volume
-            if (flashTime == 10)
-            {
-                flashImage.GetComponent<AudioSource>().Play();
-            }
-            if (flashTime >= 10 && flashTime < 500)
-            {
-                AudioListener.volume = (float)(flashTime - 10) / 489;
-            }
             
             // Flashing
-            if (flashTime <= 5)
+            if (flashTime <= 7)
             {
-                flashImage.GetComponent<Image>().color = new Color(1,1,1, (float)flashTime / 5);
+                // flashImage.GetComponent<Image>().color = new Color(1,1,1, (float)flashTime / 5);
+                flashImage.GetComponent<Image>().color = new Color(1, 1, 1, Mathf.Lerp(flashImage.GetComponent<Image>().color.a, 1, flashTime /7f));
             }
 
             flashTime++;
@@ -472,6 +466,31 @@ public class PlayerCanvas : NetworkBehaviour
             flashImage.SetActive(false);
 
             flashTime = 0;
+        }
+
+        // Banging (Sound)
+
+        if (bangTime > 0)
+        {
+            if (bangTime == 10)
+            {
+                flashImage.GetComponent<AudioSource>().Play();
+            }
+            if (bangTime >= 30 && bangTime < 80)
+            {
+                AudioListener.volume = Mathf.Lerp(1,0, (float)(bangTime - 30)/49);
+            }
+            if (bangTime >= 150 && bangTime < 500)
+            {
+                AudioListener.volume = (float)(bangTime - 150) / 349;
+            }
+
+            bangTime++;
+        }
+        // End
+        if (bangTime >= 500)
+        {
+            bangTime = 0;
         }
     }
 

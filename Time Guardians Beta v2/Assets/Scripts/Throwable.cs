@@ -232,6 +232,9 @@ public class Throwable : NetworkBehaviour
     {
         yield return new WaitForSeconds(time);
 
+        int flash = 0;
+        int bang = 0;
+
         // Check Flashbang Effect
 
         GameObject target = Player.player.playerShooting.cameras[0].transform.gameObject;
@@ -239,24 +242,41 @@ public class Throwable : NetworkBehaviour
 
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(Player.player.playerShooting.cameras[0]);
 
-        // Within Camera Bounds
+        // Can Hear
+
+        selectedItem.transform.position += new Vector3(0, 0.25f, 0);
+        selectedItem.transform.LookAt(target.transform.position);
+        RaycastHit hit;
+
+        Ray ray = new Ray(selectedItem.transform.position, selectedItem.transform.forward);
+        bool result = Physics.Raycast(ray, out hit, 30f);
+
+        if (result && hit.transform.root.transform.GetComponent<Player>() != null)
+        {
+            bang = 1;
+        }
+
+        if (Vector3.Distance(selectedItem.transform.position, target.transform.position) < 2)
+        {
+            bang = 1;
+        }
+
+        // Can See adn Hear, Within Camera Bounds
         if (GeometryUtility.TestPlanesAABB(planes, selectedItem.GetComponent<Collider>().bounds))
         {
             // Scoped Bounds
             if (!PlayerCanvas.canvas.scopeImage.activeInHierarchy || (PlayerCanvas.canvas.scopeImage.activeInHierarchy && Vector3.Dot(toTarget, Player.player.playerShooting.cameras[0].transform.forward) > 1 - (target.GetComponent<Camera>().fieldOfView / 90) * 0.3f))
             {
-                selectedItem.transform.LookAt(target.transform.position);
-                RaycastHit hit;
-
-                Ray ray = new Ray(selectedItem.transform.position, selectedItem.transform.forward);
-                bool result = Physics.Raycast(ray, out hit, 30f);
-
-                if (result && hit.transform.root.transform.GetComponent<Rigidbody>() != null)
+                if (result && hit.transform.root.transform.GetComponent<Player>() != null)
                 {
-                    PlayerCanvas.canvas.Flashbang();
+                    flash = 1;
                 }
+                print(result);
+                print(hit.transform.root.transform.name);
             }
         }
+
+        PlayerCanvas.canvas.Flashbang(flash, bang);
 
         // Other shit
 

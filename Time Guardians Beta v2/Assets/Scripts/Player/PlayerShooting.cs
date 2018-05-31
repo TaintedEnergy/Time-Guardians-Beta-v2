@@ -52,6 +52,13 @@ public class PlayerShooting : NetworkBehaviour
     public Camera[] cameras;
     public SimpleSmoothMouseLook cameraScript;
 
+    public Vector2 mouseAxis;
+    public Vector3 handMovement;
+    public Vector3 handMoveMultiplier;
+    public Vector3 handMoveSpeed;
+    public Vector3 handMoveSlowdown;
+    public Vector3 handMoveRange;
+
     public string currentItem;
     public GameObject[] firstItem;
     GameObject currentItemObject;
@@ -177,6 +184,58 @@ public class PlayerShooting : NetworkBehaviour
                 cantHit = false;
             }
         }
+
+        ///
+        // Hand Movement
+        //
+
+        mouseAxis = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        if (Cursor.visible)
+        {
+            mouseAxis = new Vector2(0, 0);
+        }
+
+        // Detect Angle
+
+        Vector3 newMovement = handMovement;
+        if ((mouseAxis.x > 0 && mouseAxis.x > handMovement.x) || (mouseAxis.x < 0 && mouseAxis.x < handMovement.x))
+        {
+            newMovement.x = Mathf.Lerp(newMovement.x, mouseAxis.x, Time.deltaTime * handMoveSpeed.x);
+            newMovement.z = Mathf.Lerp(newMovement.z, mouseAxis.x, Time.deltaTime * handMoveSpeed.z);
+        }
+        else
+        {
+            newMovement.x *= handMoveSlowdown.x;
+            newMovement.z *= handMoveSlowdown.z;
+        }
+        if ((mouseAxis.y > 0 && mouseAxis.y > handMovement.y) || (mouseAxis.y < 0 && mouseAxis.y < handMovement.y))
+        {
+            newMovement.y = Mathf.Lerp(newMovement.y, mouseAxis.y, Time.deltaTime * handMoveSlowdown.y);
+        }
+        else
+        {
+            newMovement.y *= handMoveSlowdown.y;
+        }
+
+        // Range
+
+        if (newMovement.x > handMoveRange.x) { newMovement.x = handMoveRange.x; }
+        if (newMovement.x < -handMoveRange.x) { newMovement.x = -handMoveRange.x; }
+
+        if (newMovement.y > handMoveRange.y) { newMovement.y = handMoveRange.y; }
+        if (newMovement.y < -handMoveRange.y) { newMovement.y = -handMoveRange.y; }
+
+        if (newMovement.z > handMoveRange.z) { newMovement.z = handMoveRange.z; }
+        if (newMovement.z < -handMoveRange.z) { newMovement.z = -handMoveRange.z; }
+
+        handMovement = newMovement;
+
+        // Display Movement
+
+        cameras[1].transform.localEulerAngles = new Vector3(-handMovement.y * handMoveMultiplier.y, handMovement.x * handMoveMultiplier.x, handMovement.z * handMoveMultiplier.z);
+
+
+
 
         // View Players
         RaycastHit hit;

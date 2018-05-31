@@ -14046,7 +14046,7 @@ GameObject:
   m_Layer: 8
   m_Name: Camera Pivot
   m_TagString: Untagged
-  m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
@@ -52228,7 +52228,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   turnOnDelay: 0.1
-  turnOffDelay: 0.1
+  turnOffDelay: 1
   enabledOnLoad: 0
 --- !u!114 &114155106134854652
 MonoBehaviour:
@@ -53182,6 +53182,12 @@ MonoBehaviour:
   - {fileID: 20948963624594598}
   - {fileID: 20975773152009618}
   cameraScript: {fileID: 114585737396857842}
+  mouseAxis: {x: 0, y: 0}
+  handMovement: {x: 0, y: 0, z: 0}
+  handMoveMultiplier: {x: 5, y: 6, z: 4}
+  handMoveSpeed: {x: 1, y: 6, z: 3}
+  handMoveSlowdown: {x: 0.995, y: 0.99, z: 0.99}
+  handMoveRange: {x: 3, y: 1.5, z: 2}
   currentItem: 
   firstItem:
   - {fileID: 1541226076283596}

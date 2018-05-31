@@ -24,7 +24,9 @@ public class RendererToggler : MonoBehaviour
         if (isOn)
             Invoke("EnableRenderers", turnOnDelay);
         else
+        {
             Invoke("DisableRenderers", turnOffDelay);
+        }
     }
 
     public void EnableRenderers()
