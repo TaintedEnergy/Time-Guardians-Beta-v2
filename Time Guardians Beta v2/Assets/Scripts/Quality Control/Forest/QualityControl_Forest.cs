@@ -2,29 +2,41 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PostProcessing;
+using UnityEngine.Rendering.PostProcessing;
 
 public class QualityControl_Forest : MonoBehaviour {
 
-    public  int[] forestTreeBillboardDistances = new int[] { 50, 50, 50, 75, 100 };
+    public  int[] forestTreeBillboardDistances = new int[] { 25, 50, 50, 50, 75, 100 };
 
-    public  float[] forestWindTurbulance = new float[] { 0, 0, 0.5f, 1, 2 };
+    public  float[] forestWindTurbulance = new float[] { 0,0, 0, 0.5f, 1, 2 };
 
     public Terrain[] terrains;
 
-    public bool[] testQuality = new bool[5];
+    public bool[] testQuality = new bool[6];
 
     public WindZone wind;
 
-    public GameObject gameCamera;
-    public PostProcessingBehaviour postPro;
+    public GameObject[] postVols;
+   
 
 	void Start () {
-        postPro = gameCamera.GetComponent<PostProcessingBehaviour>();
+      
+        
         for (int i = 0; i < testQuality.Length; i++ )
         {
             if (testQuality[i])
             {
                 QualitySettings.SetQualityLevel(i);
+            }
+        }
+
+        foreach (GameObject post in postVols)
+        {
+            Debug.Log(QualitySettings.GetQualityLevel());
+            if (QualitySettings.GetQualityLevel() == 0)
+            {
+                post.SetActive(false);
+                Debug.Log(QualitySettings.GetQualityLevel());
             }
         }
 
@@ -44,10 +56,7 @@ public class QualityControl_Forest : MonoBehaviour {
                 wind.windTurbulence = forestWindTurbulance[i];
             }
 
-            if (QualitySettings.GetQualityLevel() == 0)
-            {
-                postPro.enabled = false;
-            }
+           
         }
 		
         
