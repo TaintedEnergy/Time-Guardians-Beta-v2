@@ -368,6 +368,7 @@ public class PlayerCanvas : NetworkBehaviour
             }
         }
 
+        inventoryObject.SetActive(false);
 
         // Disable in 5 seconds
         Invoke("DisableWinMenu", 5f);
@@ -375,6 +376,7 @@ public class PlayerCanvas : NetworkBehaviour
 
     void DisableWinMenu()
     {
+        inventoryObject.SetActive(true);
         gameOverObject.SetActive(false);
     }
 
@@ -790,7 +792,7 @@ public class PlayerCanvas : NetworkBehaviour
         newItem.transform.Find("RoleImage").gameObject.SetActive(false);
         newItem.transform.localScale = new Vector3(1,1,1);
 
-        CheckRoleVisibility("", currentRole, newItem, playerName == Player.player.playerName);
+        CheckRoleVisibility("", currentRole, newItem);
     }
     public void TabMenuEdit(string playerName, string status, bool showRole)
     {
@@ -815,7 +817,43 @@ public class PlayerCanvas : NetworkBehaviour
             newItem.transform.Find("RoleImage").gameObject.SetActive(true);
         }
     }
-    public void CheckRoleVisibility (string playerName, string roleName, GameObject newItem, bool isPlayer)
+    public void TabMenuRemove(string playerName)
+    {
+        int sortFrom = -1;
+        // Find Player
+
+        for (int i = 0; i < tabItemsInfo.Count; i++)
+        {
+            if (tabItemsInfo[i].playerName == playerName)
+            {
+                // Remove from Tab menu
+
+                Destroy(tabItems[i]);
+
+                // Remove Traces
+
+                tabItems.RemoveAt(i);
+                tabItemsInfo.RemoveAt(i);
+
+                // End
+                sortFrom = i;
+                i = tabItemsInfo.Count;
+            }
+        }
+
+        // Resort
+        if (sortFrom != -1)
+        {
+            for (int i = 0; i < tabItems.Count; i++)
+            {
+                if (i >= sortFrom)
+                {
+                    tabItems[i].GetComponent<RectTransform>().anchoredPosition = new Vector3(0, -10 - sortFrom*20, 0);
+                }
+            }
+        }
+    }
+    public void CheckRoleVisibility (string playerName, string roleName, GameObject newItem)
     {
         // Get Item if not got
 
@@ -833,7 +871,7 @@ public class PlayerCanvas : NetworkBehaviour
         // Check
         if (roleName != "" && roleName != null)
         {
-            if (isPlayer)
+            if (playerName == Player.player.playerName)
             {
                 newItem.transform.Find("RoleImage").gameObject.SetActive(true);
             }
@@ -1105,21 +1143,24 @@ public class PlayerCanvas : NetworkBehaviour
 
     public void SelectShopItem(int index, bool quickSelect)
     {
-        // Set Visuals
-        shopItemNameText.text = Category()[index].displayName;
-        shopItemDescriptionText.text = Category()[index].description;
-        shopItemWorthText.text = "Purchase: " + Category()[index].worth + " Crystals";
-
-
-        // Quick Purchase
-        if ((Time.time - lastShopClick) < 0.3 && lastShopIndex == index && quickSelect)
+        if (Category().Count > 0)
         {
-            PurchaseItem(index);
-        }
+            // Set Visuals
+            shopItemNameText.text = Category()[index].displayName;
+            shopItemDescriptionText.text = Category()[index].description;
+            shopItemWorthText.text = "Purchase: " + Category()[index].worth + " Crystals";
 
-        // Debug.Log((Time.time - lastClick) + "" + lastIndex);
-        lastShopClick = Time.time;
-        lastShopIndex = index;
+
+            // Quick Purchase
+            if ((Time.time - lastShopClick) < 0.3 && lastShopIndex == index && quickSelect)
+            {
+                PurchaseItem(index);
+            }
+
+            // Debug.Log((Time.time - lastClick) + "" + lastIndex);
+            lastShopClick = Time.time;
+            lastShopIndex = index;
+        }
     }
 
     void PurchaseItem (int index)
@@ -1201,13 +1242,75 @@ public class PlayerCanvas : NetworkBehaviour
 
         if (currentSortMethod == 0)
         {
+            List<ShopItemInfo> one = new List<ShopItemInfo>();
+            List<ShopItemInfo> two = new List<ShopItemInfo>();
+            List<ShopItemInfo> three = new List<ShopItemInfo>();
+
+            foreach (ShopItemInfo s in category)
+            {
+                if (s.worth == 1) { one.Add(s); }
+                if (s.worth == 2) { two.Add(s); }
+                if (s.worth == 3) { three.Add(s); }
+            }
+
+            category = new List<ShopItemInfo>();
             if (sortMethodDirection[currentSortMethod] == 0)
             {
-                category.Sort((p1, p2) => p1.worth.CompareTo(p2.worth));
+                category.AddRange(one);
+                category.AddRange(two);
+                category.AddRange(three);
             }
             else
             {
-                category.Sort((p1, p2) => -p1.worth.CompareTo(-p2.worth));
+                category.AddRange(three);
+                category.AddRange(two);
+                category.AddRange(one);
+            }
+        }
+        if (currentSortMethod == 1)
+        {
+            List<ShopItemInfo> fav = new List<ShopItemInfo>();
+            List<ShopItemInfo> not = new List<ShopItemInfo>();
+
+            foreach (ShopItemInfo s in category)
+            {
+                if (s.favourite) { fav.Add(s); }
+                else { not.Add(s); }
+            }
+
+            category = new List<ShopItemInfo>();
+            if (sortMethodDirection[currentSortMethod] == 0)
+            {
+                category.AddRange(fav);
+                category.AddRange(not);
+            }
+            else
+            {
+                category.AddRange(not);
+                category.AddRange(fav);
+            }
+        }
+        if (currentSortMethod == 2)
+        {
+            List<ShopItemInfo> spec = new List<ShopItemInfo>();
+            List<ShopItemInfo> not = new List<ShopItemInfo>();
+
+            foreach (ShopItemInfo s in category)
+            {
+                if (s.favourite) { spec.Add(s); }
+                else { not.Add(s); }
+            }
+
+            category = new List<ShopItemInfo>();
+            if (sortMethodDirection[currentSortMethod] == 0)
+            {
+                category.AddRange(spec);
+                category.AddRange(not);
+            }
+            else
+            {
+                category.AddRange(not);
+                category.AddRange(spec);
             }
         }
 

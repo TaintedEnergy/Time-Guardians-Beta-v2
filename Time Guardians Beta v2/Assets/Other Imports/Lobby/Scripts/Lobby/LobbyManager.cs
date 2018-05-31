@@ -68,6 +68,8 @@ namespace Prototype.NetworkLobby
 
             DontDestroyOnLoad(gameObject);
 
+            Application.runInBackground = true;
+
             SetServerInfo("Offline", "None");
         }
 

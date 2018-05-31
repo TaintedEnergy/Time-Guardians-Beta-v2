@@ -1,7 +1,5 @@
 fileFormatVersion: 2
 guid: 96080689f1b5b414abc5c2947645e1dd
-timeCreated: 1511072317
-licenseType: Free
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
@@ -364,6 +362,12 @@ ModelImporter:
     2300224: Wood
     2300226: Wood_Planks
     2300228: Wooden_Slab
+    2300230: Dirt
+    2300232: Grass_Block
+    2300234: Gravel
+    2300236: Sand
+    2300238: Stationary_Water
+    2300240: Stone
     3300000: Acacia_Door
     3300002: Bed
     3300004: Block_of_Quartz
@@ -479,6 +483,12 @@ ModelImporter:
     3300224: Wood
     3300226: Wood_Planks
     3300228: Wooden_Slab
+    3300230: Dirt
+    3300232: Grass_Block
+    3300234: Gravel
+    3300236: Sand
+    3300238: Stationary_Water
+    3300240: Stone
     4300000: Acacia_Door
     4300002: Bed
     4300004: Block_of_Quartz
@@ -594,6 +604,12 @@ ModelImporter:
     4300224: Wood
     4300226: Wood_Planks
     4300228: Wooden_Slab
+    4300230: Dirt
+    4300232: Grass_Block
+    4300234: Gravel
+    4300236: Sand
+    4300238: Stationary_Water
+    4300240: Stone
     9500000: //RootNode
   externalObjects:
   - first:
@@ -994,6 +1010,7 @@ ModelImporter:
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -1018,6 +1035,8 @@ ModelImporter:
     optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88

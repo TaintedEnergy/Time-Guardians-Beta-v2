@@ -39,43 +39,43 @@ public class Inventory : NetworkBehaviour
 
         if (Input.GetKeyDown("1"))
         {
-            SelectItem(0);
+            SelectItem(0, false);
         }
         if (Input.GetKeyDown("2"))
         {
-            SelectItem(1);
+            SelectItem(1, false);
         }
         if (Input.GetKeyDown("3"))
         {
-            SelectItem(2);
+            SelectItem(2, false);
         }
         if (Input.GetKeyDown("4"))
         {
-            SelectItem(3);
+            SelectItem(3, false);
         }
         if (Input.GetKeyDown("5"))
         {
-            SelectItem(4);
+            SelectItem(4, false);
         }
         if (Input.GetKeyDown("6"))
         {
-            SelectItem(5);
+            SelectItem(5, false);
         }
         if (Input.GetKeyDown("7"))
         {
-            SelectItem(6);
+            SelectItem(6, false);
         }
         if (Input.GetKeyDown("8"))
         {
-            SelectItem(7);
+            SelectItem(7, false);
         }
         if (Input.GetKeyDown("9"))
         {
-            SelectItem(8);
+            SelectItem(8, false);
         }
         if (Input.GetKeyDown("0"))
         {
-            SelectItem(9);
+            SelectItem(9, false);
         }
         #endregion
 
@@ -105,7 +105,7 @@ public class Inventory : NetworkBehaviour
                 int newSelection = selected + 1;
                 if (newSelection == max) { newSelection = 0; }
 
-                SelectItem(newSelection);
+                SelectItem(newSelection, false);
             }
             if (Input.GetAxis("Mouse ScrollWheel") > 0)
             {
@@ -118,7 +118,7 @@ public class Inventory : NetworkBehaviour
                 int newSelection = selected - 1;
                 if (newSelection == -1) { newSelection = max-1; }
 
-                SelectItem(newSelection);
+                SelectItem(newSelection, false);
             }
         }
     }
@@ -129,7 +129,7 @@ public class Inventory : NetworkBehaviour
         {
             NewItem(i, "empty");
         }
-        SelectItem(0);
+        SelectItem(0, true);
     }
 
     public void NewItem (int slot, string newItemName)
@@ -151,7 +151,7 @@ public class Inventory : NetworkBehaviour
 
         if (slot == selected)
         {
-            SelectItem(slot);
+            SelectItem(slot, false);
         }
 
         // Show extra slots if extra item present
@@ -188,9 +188,9 @@ public class Inventory : NetworkBehaviour
         return value;
     }
 
-    public void SelectItem (int value)
+    public void SelectItem (int value, bool forced)
     {
-        if (Player.player != null && Player.player.playerShooting.elapsedTime == 0)
+        if (Player.player != null && (forced || (!forced && Player.player.playerShooting.elapsedTime == 0)))
         {
             // Dont select extra slot if no extra items
             if (value < 5 || (value >= 5 && ExtraItemCheck()))
@@ -217,7 +217,7 @@ public class Inventory : NetworkBehaviour
             else if (selected >= 5)
             {
                 selected = 0;
-                SelectItem(0);
+                SelectItem(0, false);
             }
         }
     }
@@ -263,7 +263,8 @@ public class Inventory : NetworkBehaviour
                 }
             }
         }
-        SelectItem(0);
+        
+        SelectItem(0, true);
     }
     
     [Command]

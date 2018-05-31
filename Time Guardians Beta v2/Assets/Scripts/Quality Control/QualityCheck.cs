@@ -21,7 +21,7 @@ public class QualityCheck : MonoBehaviour {
     {
         if (!done)
         {
-            if (QualitySettings.GetQualityLevel() == 5)
+            if (QualitySettings.GetQualityLevel() >= 4)
             {
                 if (main)
                 {

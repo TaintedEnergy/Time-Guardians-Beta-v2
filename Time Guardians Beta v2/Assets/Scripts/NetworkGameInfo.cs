@@ -144,6 +144,7 @@ public class NetworkGameInfo : NetworkBehaviour
     public void LeftMemeber()
     {
         int foundAt = -1;
+
         for (int i = 0; i < players.Count; i++)
         {
             if (players[i] == null)
@@ -163,9 +164,17 @@ public class NetworkGameInfo : NetworkBehaviour
             }
 
             // Remove Player from Players List
+            RpcLeftMember(playerIds[foundAt]);
             players.RemoveAt(foundAt);
             playerIds.RemoveAt(foundAt);
         }
+    }
+
+    [ClientRpc]
+    void RpcLeftMember (string playerName)
+    {
+        PlayerCanvas.canvas.TabMenuRemove(playerName);
+        PlayerCanvas.canvas.SyncData(roles, playerIds);
     }
 
     [ServerCallback]

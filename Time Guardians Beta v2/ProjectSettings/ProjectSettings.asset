@@ -529,6 +529,7 @@ PlayerSettings:
   webGLUseEmbeddedResources: 0
   webGLCompressionFormat: 1
   webGLLinkerTarget: 0
+<<<<<<< HEAD
   scriptingDefineSymbols:
     1: UNITY_POST_PROCESSING_STACK_V2
     4: UNITY_POST_PROCESSING_STACK_V2
@@ -542,6 +543,9 @@ PlayerSettings:
     25: UNITY_POST_PROCESSING_STACK_V2
     26: UNITY_POST_PROCESSING_STACK_V2
     27: UNITY_POST_PROCESSING_STACK_V2
+=======
+  scriptingDefineSymbols: {}
+>>>>>>> fb456c0f9af99fb0445ca896cf606f699e3eb72b
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}

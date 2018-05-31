@@ -82,6 +82,17 @@ public class PlayerHealth : NetworkBehaviour
             }
         }
 
+        // Play Hurt Sound
+
+        if (lastHitElapsed > 0.3f)
+        {
+            Vector3 pos = new Vector3();
+            Vector2 volume = new Vector2(0.1f, 0.2f);
+            Vector2 pitch = new Vector2(0.8f, 1f);
+
+            player.playerSounds.PlaySound("hurt", pos, volume, pitch, 10, true);
+        }
+
         return died;
     }
 
@@ -105,17 +116,6 @@ public class PlayerHealth : NetworkBehaviour
             else
             {
                 PlayerCanvas.canvas.ReceiveDamage(2, direction);
-            }
-
-            // Play Hurt Sound
-
-            if (lastHitElapsed > 0.3f)
-            {
-                Vector3 pos = new Vector3();
-                Vector2 volume = new Vector2(0.1f, 0.2f);
-                Vector2 pitch = new Vector2(0.8f, 1f);
-
-                player.playerSounds.PlaySound("hurt", pos, volume, pitch, 20, false);
             }
         }
 

@@ -1,7 +1,5 @@
 fileFormatVersion: 2
 guid: 8dd3d7ebaf74c274fbced7046e61a4d2
-timeCreated: 1509153607
-licenseType: Free
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
@@ -46,6 +44,7 @@ ModelImporter:
     2300012: Cube.005_MeshPart1
     2300014: Cube.006
     2300016: Cube.007
+    2300018: Cube.005
     3300000: Cube
     3300002: Cube.001
     3300004: Cube.002
@@ -55,6 +54,7 @@ ModelImporter:
     3300012: Cube.005_MeshPart1
     3300014: Cube.006
     3300016: Cube.007
+    3300018: Cube.005
     4300000: Cube.001
     4300002: Cube
     4300004: Cube.003
@@ -64,6 +64,7 @@ ModelImporter:
     4300012: Cube.005_MeshPart1
     4300014: Cube.006
     4300016: Cube.007
+    4300018: Cube.005
     10800000: Lamp
     10800002: Lamp.001
   externalObjects:
@@ -71,42 +72,42 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: KnifeBlade
-    second: {fileID: 2100000, guid: 930c9ec5223da614b8de58e1ac28cace, type: 2}
+    second: {fileID: 2100000, guid: e0b838d8d762cdc4b9b109dd130d38ec, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: KnifeBlade.001
-    second: {fileID: 2100000, guid: 58f05077bbd05f042adb84ada78011fc, type: 2}
+    second: {fileID: 2100000, guid: f4434f490672991429562bad7d75b212, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: KnifeHandGuard
-    second: {fileID: 2100000, guid: 47a2c8152a1c2d441bba4acd827aa4de, type: 2}
+    second: {fileID: 2100000, guid: 14ad1c997d1f85047a4b82a550ca0327, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: KnifeHandGuard.001
-    second: {fileID: 2100000, guid: 13a3b9a71d052ce49a2122b3709df571, type: 2}
+    second: {fileID: 2100000, guid: 67958a05e998be44791f00aab4de831e, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: KnifeHandle
-    second: {fileID: 2100000, guid: a331c89997052cf43b4ef4a7ccf8324c, type: 2}
+    second: {fileID: 2100000, guid: ac74318a30363894dae37df866f54383, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: KnifeHandle.001
-    second: {fileID: 2100000, guid: 1c9b2571f8fe9464398d6554de3af71a, type: 2}
+    second: {fileID: 2100000, guid: ac1f3b21813eac142a7fda91de6c0096, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: KnifeHandleTip
-    second: {fileID: 2100000, guid: d0a18a35d4bfa9a4da97037b0236948d, type: 2}
+    second: {fileID: 2100000, guid: 3bfdd8b9831f13142b3b128057c411ba, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: KnifeHandleTip.001
-    second: {fileID: 2100000, guid: ab250b7ac3214ea419324c0b39136cfb, type: 2}
+    second: {fileID: 2100000, guid: 49f598341c2de2d459ee0cb41118a153, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -135,6 +136,7 @@ ModelImporter:
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -159,6 +161,8 @@ ModelImporter:
     optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
