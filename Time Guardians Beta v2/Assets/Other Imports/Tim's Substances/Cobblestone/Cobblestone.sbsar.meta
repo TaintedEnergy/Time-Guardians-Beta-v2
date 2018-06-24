@@ -1,441 +1,84 @@
 fileFormatVersion: 2
 guid: 95ecdda61c7d75947b0f17ab60996d50
-timeCreated: 1517726702
-licenseType: Free
-SubstanceImporter:
+ScriptedImporter:
+  fileIDToRecycleName:
+    100000: Cobblestone/Cobblestone
+    400000: Cobblestone/Cobblestone/Transform
+    2100000: mat.Cobblestone
+    2300000: Cobblestone/Cobblestone/MeshRenderer
+    2800000: Cobblestone_Base Color
+    2800002: Cobblestone_Normal
+    2800004: Cobblestone_Metallic
+    2800006: Cobblestone_height
+    2800008: Cobblestone_oclussion
+    3300000: Cobblestone/Cobblestone/MeshFilter
+    11400000: sbsar
+    11400002: graph0
+    13500000: Cobblestone/Cobblestone/SphereCollider
+    100100000: Cobblestone
   externalObjects: {}
-  serializedVersion: 5
-  materialInstances:
-  - serializedVersion: 16
-    name: Cobblestone
-    prototypeName: Cobblestone
-    shaderName: 
-    shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-    shaderKeywords: _EMISSION _METALLICGLOSSMAP _NORMALMAP _PARALLAXMAP
-    renderQueue: -1
-    lightmapFlags: 5
-    inputs:
-    - name: $outputsize
-      value:
-        scalar[0]: 8
-        scalar[1]: 8
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: $pixelsize
-      value:
-        scalar[0]: 1
-        scalar[1]: 1
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: $randomseed
-      value:
-        scalar[0]: 0
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Puddle
-      value:
-        scalar[0]: 0
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Glossiness
-      value:
-        scalar[0]: 0.5
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Lightness
-      value:
-        scalar[0]: 0.424
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Snow
-      value:
-        scalar[0]: 0
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: X_Tiles
-      value:
-        scalar[0]: 5
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Y_Tiles
-      value:
-        scalar[0]: 5
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Tiles_Scale
-      value:
-        scalar[0]: 1.09
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Tiles_Rotation
-      value:
-        scalar[0]: 0.03
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    materialInformation:
-      serializedVersion: 5
-      offset: {x: 0, y: 0}
-      scale: {x: 5, y: 5}
-      generateMipmaps: 1
-      generateAllOutputs: 0
-      animationUpdateRate: 42
-    materialProperties:
-      serializedVersion: 3
-      texEnvs:
-      - _BumpMap:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 5}
-          offset: {x: 0, y: 0}
-      - _DetailAlbedoMap:
-          texture: {instanceID: 0}
-          scale: {x: 1, y: 1}
-          offset: {x: 0, y: 0}
-      - _DetailMask:
-          texture: {instanceID: 0}
-          scale: {x: 1, y: 1}
-          offset: {x: 0, y: 0}
-      - _DetailNormalMap:
-          texture: {instanceID: 0}
-          scale: {x: 1, y: 1}
-          offset: {x: 0, y: 0}
-      - _EmissionMap:
-          texture: {instanceID: 0}
-          scale: {x: 1, y: 1}
-          offset: {x: 0, y: 0}
-      - _MainTex:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 5}
-          offset: {x: 0, y: 0}
-      - _MetallicGlossMap:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 5}
-          offset: {x: 0, y: 0}
-      - _OcclusionMap:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 5}
-          offset: {x: 0, y: 0}
-      - _ParallaxMap:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 5}
-          offset: {x: 0, y: 0}
-      floats:
-      - _BumpScale: 1
-      - _Cutoff: 0.5
-      - _DetailNormalMapScale: 1
-      - _DstBlend: 0
-      - _GlossMapScale: 1
-      - _Glossiness: 0.5
-      - _GlossyReflections: 1
-      - _Metallic: 0
-      - _Mode: 0
-      - _OcclusionStrength: 1
-      - _Parallax: 0.02
-      - _SmoothnessTextureChannel: 0
-      - _SpecularHighlights: 1
-      - _SrcBlend: 1
-      - _UVSec: 0
-      - _ZWrite: 1
-      colors:
-      - _Color: {r: 1, g: 1, b: 1, a: 1}
-      - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    textureParameters:
-    - name: Cobblestone_basecolor
-      alphaSource: 6
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    - name: Cobblestone_normal
-      alphaSource: 0
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    - name: Cobblestone_metallic
-      alphaSource: 7
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    - name: Cobblestone_height
-      alphaSource: 0
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    - name: Cobblestone_Occlusion
-      alphaSource: 0
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    textureAssignments:
-    - shaderProp: _MainTex
-      material: {instanceID: 0}
-      baseUID: 2631257123
-    - shaderProp: _BumpMap
-      material: {instanceID: 0}
-      baseUID: 2631257121
-    - shaderProp: _MetallicGlossMap
-      material: {instanceID: 0}
-      baseUID: 2631257125
-    - shaderProp: _OcclusionMap
-      material: {instanceID: 0}
-      baseUID: 2652300346
-    - shaderProp: _ParallaxMap
-      material: {instanceID: 0}
-      baseUID: 2652307372
-    buildTargetSettings:
-    - serializedVersion: 2
-      buildTarget: 
-      textureWidth: 2048
-      textureHeight: 2048
-      textureFormat: 0
-      loadingBehavior: 4
-  - serializedVersion: 16
-    name: Cobblestone_1
-    prototypeName: Cobblestone
-    shaderName: 
-    shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-    shaderKeywords: _METALLICGLOSSMAP _NORMALMAP _PARALLAXMAP
-    renderQueue: -1
-    lightmapFlags: 4
-    inputs:
-    - name: $outputsize
-      value:
-        scalar[0]: 8
-        scalar[1]: 8
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: $pixelsize
-      value:
-        scalar[0]: 1
-        scalar[1]: 1
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: $randomseed
-      value:
-        scalar[0]: 1072
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Puddle
-      value:
-        scalar[0]: 0.65
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Glossiness
-      value:
-        scalar[0]: 0.5
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Lightness
-      value:
-        scalar[0]: 0.424
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Snow
-      value:
-        scalar[0]: 0
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: X_Tiles
-      value:
-        scalar[0]: 18.8
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Y_Tiles
-      value:
-        scalar[0]: 5
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Tiles_Scale
-      value:
-        scalar[0]: 1.09
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    - name: Tiles_Rotation
-      value:
-        scalar[0]: 0.03
-        scalar[1]: 0
-        scalar[2]: 0
-        scalar[3]: 0
-        texture: {instanceID: 0}
-        stringvalue: 
-    materialInformation:
-      serializedVersion: 5
-      offset: {x: 0, y: 0}
-      scale: {x: 5, y: 5}
-      generateMipmaps: 1
-      generateAllOutputs: 1
-      animationUpdateRate: 0
-    materialProperties:
-      serializedVersion: 3
-      texEnvs:
-      - _BumpMap:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 1}
-          offset: {x: 0, y: 0}
-      - _DetailAlbedoMap:
-          texture: {instanceID: 0}
-          scale: {x: 1, y: 1}
-          offset: {x: 0, y: 0}
-      - _DetailMask:
-          texture: {instanceID: 0}
-          scale: {x: 1, y: 1}
-          offset: {x: 0, y: 0}
-      - _DetailNormalMap:
-          texture: {instanceID: 0}
-          scale: {x: 1, y: 1}
-          offset: {x: 0, y: 0}
-      - _EmissionMap:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 5}
-          offset: {x: 0, y: 0}
-      - _MainTex:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 5}
-          offset: {x: 0, y: 0}
-      - _MetallicGlossMap:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 1}
-          offset: {x: 0, y: 0}
-      - _OcclusionMap:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 1}
-          offset: {x: 0, y: 0}
-      - _ParallaxMap:
-          texture: {instanceID: 0}
-          scale: {x: 5, y: 1}
-          offset: {x: 0, y: 0}
-      floats:
-      - _BumpScale: 1
-      - _Cutoff: 0.5
-      - _DetailNormalMapScale: 1
-      - _DstBlend: 0
-      - _GlossMapScale: 1
-      - _Glossiness: 0.5
-      - _GlossyReflections: 1
-      - _Metallic: 0
-      - _Mode: 0
-      - _OcclusionStrength: 1
-      - _Parallax: 0.02
-      - _SmoothnessTextureChannel: 0
-      - _SpecularHighlights: 1
-      - _SrcBlend: 1
-      - _UVSec: 0
-      - _ZWrite: 1
-      colors:
-      - _Color: {r: 1, g: 1, b: 1, a: 1}
-      - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    textureParameters:
-    - name: Cobblestone_1_basecolor
-      alphaSource: 6
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    - name: Cobblestone_1_normal
-      alphaSource: 0
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    - name: Cobblestone_1_metallic
-      alphaSource: 7
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    - name: Cobblestone_1_height
-      alphaSource: 0
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    - name: Cobblestone_1_Occlusion
-      alphaSource: 0
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    - name: Cobblestone_1_roughness
-      alphaSource: 0
-      filterMode: 1
-      aniso: 1
-      wrapMode: 0
-    textureAssignments:
-    - shaderProp: _MainTex
-      material: {instanceID: 0}
-      baseUID: 2631257123
-    - shaderProp: _BumpMap
-      material: {instanceID: 0}
-      baseUID: 2631257121
-    - shaderProp: _MetallicGlossMap
-      material: {instanceID: 0}
-      baseUID: 2631257125
-    - shaderProp: _OcclusionMap
-      material: {instanceID: 0}
-      baseUID: 2652300346
-    - shaderProp: _ParallaxMap
-      material: {instanceID: 0}
-      baseUID: 2652307372
-    buildTargetSettings:
-    - serializedVersion: 2
-      buildTarget: 
-      textureWidth: 512
-      textureHeight: 512
-      textureFormat: 0
-      loadingBehavior: 1
-  deletedPrototypes: []
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+  script: {fileID: 232528478, guid: 43a8bbf65be290d44ba52b94476242b9, type: 3}
+  mGraphInstanceData:
+  - graphLabel: Cobblestone
+    graphDescIndex: 0
+    generateAllOutputs: 0
+    generateMipMaps: 1
+    preset: " <sbspreset pkgurl=\"pkg://Cobblestone\" label=\"\" >\n </sbspreset>\n"
+    shaderName: Standard
+    outputNames: Base Color,Normal,Metallic,height,oclussion
+    texturePackingList:
+    - outputName: Base Color
+      alphaSource: Base Color
+    - outputName: Normal
+      alphaSource: Normal
+    - outputName: Roughness
+      alphaSource: Roughness
+    - outputName: Metallic
+      alphaSource: Smoothness
+    - outputName: height
+      alphaSource: height
+    - outputName: oclussion
+      alphaSource: oclussion
+    colorSpaceList:
+    - outputName: Base Color
+      bLinear: 0
+    - outputName: Normal
+      bLinear: 1
+    - outputName: Roughness
+      bLinear: 1
+    - outputName: Metallic
+      bLinear: 1
+    - outputName: height
+      bLinear: 1
+    - outputName: oclussion
+      bLinear: 1
+    inputTextureMap: []
+    targetSettingList:
+    - label: Default
+      bOverride: 0
+      bLockRatio: 1
+      bHighQuality: 0
+      textureWidth: 256
+      textureHeight: 256
+      textureFormat: 0
+      loadBehavior: 0
+    - label: Standalone
+      bOverride: 0
+      bLockRatio: 1
+      bHighQuality: 0
+      textureWidth: 256
+      textureHeight: 256
+      textureFormat: 0
+      loadBehavior: 0
+    - label: iPhone
+      bOverride: 0
+      bLockRatio: 1
+      bHighQuality: 0
+      textureWidth: 256
+      textureHeight: 256
+      textureFormat: 0
+      loadBehavior: 0
+    material: {instanceID: 0}
