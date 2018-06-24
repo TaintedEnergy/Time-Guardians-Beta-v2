@@ -271,8 +271,6 @@ public class Throwable : NetworkBehaviour
                 {
                     flash = 1;
                 }
-                print(result);
-                print(hit.transform.root.transform.name);
             }
         }
 
@@ -293,6 +291,11 @@ public class Throwable : NetworkBehaviour
     [ClientRpc]
     public void RpcForceExplode()
     {
+        if (Player.player != null)
+        {
+            Player.player.rpcs++;
+        }
+
         StartCoroutine("C4Explode");
     }
 

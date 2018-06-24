@@ -10,6 +10,9 @@ public class PlayerCanvas : NetworkBehaviour
     public Text fpsText;
     int fpsTime;
 
+    public Text cmdsText;
+    public Text rpcsText;
+
 
     [Header("Main Components")]
 
@@ -92,8 +95,7 @@ public class PlayerCanvas : NetworkBehaviour
     public GameObject tabMenu;
     public float tabMenuWidth = 300f;
     public GameObject tabItemAsset;
-
-    public List<GameObject> tabItems = new List<GameObject>();
+    
     public List<TabInfo> tabItemsInfo = new List<TabInfo>();
 
     [Header("Shop")]
@@ -173,13 +175,14 @@ public class PlayerCanvas : NetworkBehaviour
         {
             fpsText.text = "FPS: " + (int)(1.0 / Time.deltaTime);
             fpsTime = 0;
-        }
 
-        if (Input.GetMouseButtonDown(1) || (Input.GetKeyDown("e") && elapsedBodyTime <= 0))
-        {
-            if (bodyObject.activeInHierarchy)
+            if (Player.player != null)
             {
-                ToggleBodyInspection("", "");
+                cmdsText.text = "Cmds: " + Player.player.cmds;
+                rpcsText.text = "Rpcs: " + Player.player.rpcs;
+
+                Player.player.cmds = 0;
+                Player.player.rpcs = 0;
             }
         }
 
@@ -331,17 +334,9 @@ public class PlayerCanvas : NetworkBehaviour
 
     public void GameWinMenu(string roleName, string[] winners)
     {
-        RoleInfo roleInfo = null;
+        RoleInfo roleInfo = ReferenceInfo.referenceInfo.RoleInformation(roleName);
 
         gameOverObject.SetActive(true);
-        // Get Role Info
-        for (int i = 0; i < ReferenceInfo.referenceInfo.rolesInfo.Length; i++)
-        {
-            if (roleName == ReferenceInfo.referenceInfo.rolesInfo[i].name)
-            {
-                roleInfo = ReferenceInfo.referenceInfo.rolesInfo[i];
-            }
-        }
 
         /// Set Visuals
 
@@ -559,7 +554,7 @@ public class PlayerCanvas : NetworkBehaviour
                     }
                 }
             }
-            print(Player.player.playerName + " " + viewName);
+            // print(Player.player.playerName + " " + viewName);
 
             // Check and Set Role Image based on current role and masked
             if (!masked && roles.Count != 0)
@@ -570,16 +565,7 @@ public class PlayerCanvas : NetworkBehaviour
                 {
                     if (ids[i] == Player.player.playerName)
                     {
-                        // Find Role Info
-                        for (int a = 0; a < ReferenceInfo.referenceInfo.rolesInfo.Length; a++)
-                        {
-                            if (ReferenceInfo.referenceInfo.rolesInfo[a].name == roles[i])
-                            {
-                                roleInfo = ReferenceInfo.referenceInfo.rolesInfo[a];
-                                // End
-                                a = ReferenceInfo.referenceInfo.rolesInfo.Length;
-                            }
-                        }
+                        roleInfo = ReferenceInfo.referenceInfo.RoleInformation(roles[i]);
                         // End
                         i = roles.Count;
                     }
@@ -590,22 +576,11 @@ public class PlayerCanvas : NetworkBehaviour
                 {
                     if (ids[i] == viewName)
                     {
-                        // Find Role Info
-                        for (int a = 0; a < ReferenceInfo.referenceInfo.rolesInfo.Length; a++)
-                        {
-                            if (ReferenceInfo.referenceInfo.rolesInfo[a].name == roles[i])
-                            {
-                                viewedRoleInfo = ReferenceInfo.referenceInfo.rolesInfo[a];
-                                // End
-                                a = ReferenceInfo.referenceInfo.rolesInfo.Length;
-                            }
-                        }
+                        viewedRoleInfo = ReferenceInfo.referenceInfo.RoleInformation(roles[i]);
                         // End
                         i = roles.Count;
                     }
                 }
-
-                print(roleInfo.name + " " + viewedRoleInfo.name);
 
                 viewImage.gameObject.SetActive(true);
                 if (roleInfo.name != "amnesiac" && viewedRoleInfo.name == "detective")
@@ -731,25 +706,24 @@ public class PlayerCanvas : NetworkBehaviour
         {
             if (ids[i] == Player.player.playerName)
             {
-                // Finding Role Value
-                for (int roleValue = 0; roleValue < ReferenceInfo.referenceInfo.rolesInfo.Length; roleValue++)
-                {
-                    if (ReferenceInfo.referenceInfo.rolesInfo[roleValue].name == roles[i])
-                    {
-                        SetRoleVisual(ReferenceInfo.referenceInfo.rolesInfo[roleValue].name, ReferenceInfo.referenceInfo.rolesInfo[roleValue].displayedName, ReferenceInfo.referenceInfo.rolesInfo[roleValue].roleColour, ReferenceInfo.referenceInfo.rolesInfo[roleValue].textColour, ReferenceInfo.referenceInfo.rolesInfo[roleValue].image);
-                    }
-                }
+                RoleInfo roleInfo = ReferenceInfo.referenceInfo.RoleInformation(roles[i]);
+                
+                SetRoleVisual(roleInfo.name, roleInfo.displayedName, roleInfo.roleColour, roleInfo.textColour, roleInfo.image);
             }
         }
     }
 
     public void ResetRoleVisuals()
     {
-        SetRoleVisual(ReferenceInfo.referenceInfo.rolesInfo[0].name, ReferenceInfo.referenceInfo.rolesInfo[0].displayedName, ReferenceInfo.referenceInfo.rolesInfo[0].roleColour, ReferenceInfo.referenceInfo.rolesInfo[0].textColour, ReferenceInfo.referenceInfo.rolesInfo[0].image);
+        RoleInfo roleInfo = ReferenceInfo.referenceInfo.rolesInfo[0];
+
+        SetRoleVisual(roleInfo.name, roleInfo.displayedName, roleInfo.roleColour, roleInfo.textColour, roleInfo.image);
     }
 
     public void SetRoleVisual(string roleName, string displayName, Color roleColor, Color textColor, Sprite image)
     {
+        print("Set Role to " + roleName);
+
         roleText.text = displayName;
         roleText.color = roleColor;
 
@@ -771,11 +745,10 @@ public class PlayerCanvas : NetworkBehaviour
         tabMenu.GetComponent<RectTransform>().sizeDelta = new Vector3(tabMenuWidth, 160);
         tabMenu.SetActive(false);
 
-        foreach (GameObject g in tabItems)
+        foreach (TabInfo t in tabItemsInfo)
         {
-            Destroy(g);
+            Destroy(t.obj);
         }
-        tabItems.Clear();
         tabItemsInfo.Clear();
     }
     public void TabMenuAdd(string playerName)
@@ -794,164 +767,169 @@ public class PlayerCanvas : NetworkBehaviour
                 yPosition = i * 20;
             }
         }
-        RoleInfo currentRoleInfo = new RoleInfo();
-        for (int i = 0; i < ReferenceInfo.referenceInfo.rolesInfo.Length; i++)
-        {
-            if (ReferenceInfo.referenceInfo.rolesInfo[i].name == currentRole)
-            {
-                currentRoleInfo = ReferenceInfo.referenceInfo.rolesInfo[i];
-            }
-        }
+        RoleInfo roleInfo = ReferenceInfo.referenceInfo.RoleInformation(currentRole);
+
         newItem.SetActive(true);
-        tabItems.Add(newItem);
+
+        TabInfo tabInfo = new TabInfo();
+        tabInfo.playerName = playerName;
+        tabInfo.roleName = roleImage.name;
+        tabInfo.status = "";
+        tabInfo.obj = newItem;
+        tabItemsInfo.Add(tabInfo);
+        
         newItem.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, -10 - yPosition, 0);
         newItem.transform.Find("NameText").GetComponent<Text>().text = playerName;
         newItem.transform.Find("StatusText").GetComponent<Text>().text = "";
-        newItem.transform.Find("RoleImage").GetComponent<Image>().sprite = currentRoleInfo.imageGlow;
+        newItem.transform.Find("RoleImage").GetComponent<Image>().sprite = roleInfo.imageGlow;
         newItem.transform.Find("RoleImage").gameObject.SetActive(false);
         newItem.transform.localScale = new Vector3(1,1,1);
 
-        CheckRoleVisibility("", currentRole, newItem);
+        CheckRoleVisibility(playerName, currentRole, newItem, "");
     }
     public void TabMenuEdit(string playerName, string status, bool showRole)
     {
         // Get Item if not got
-        GameObject newItem = null;
+        TabInfo newItemInfo = null;
 
-        foreach (GameObject g in tabItems)
+        foreach (TabInfo t in tabItemsInfo)
         {
-            if (g.name == playerName)
+            if (t.playerName == playerName)
             {
-                newItem = g;
+                newItemInfo = t;
             }
         }
 
         // Edit Status
 
-        newItem.transform.Find("StatusText").GetComponent<Text>().text = status;
+        newItemInfo.status = status;
+        newItemInfo.obj.transform.Find("StatusText").GetComponent<Text>().text = status;
 
         // Show Role
         if (showRole)
         {
-            newItem.transform.Find("RoleImage").gameObject.SetActive(true);
+            newItemInfo.obj.transform.Find("RoleImage").gameObject.SetActive(true);
         }
     }
     public void TabMenuRemove(string playerName)
     {
-        int sortFrom = -1;
+        print("Started removing player " + playerName);
         // Find Player
 
         for (int i = 0; i < tabItemsInfo.Count; i++)
         {
+            print(tabItemsInfo[i].playerName + " " + playerName);
+
             if (tabItemsInfo[i].playerName == playerName)
             {
+                print("Removing " + playerName);
+
                 // Remove from Tab menu
 
-                Destroy(tabItems[i]);
+                Destroy(tabItemsInfo[i].obj);
 
                 // Remove Traces
-
-                tabItems.RemoveAt(i);
+                
                 tabItemsInfo.RemoveAt(i);
 
+                print("TabItemsInfo now only has a size of " + tabItemsInfo.Count);
+
                 // End
-                sortFrom = i;
                 i = tabItemsInfo.Count;
             }
         }
 
         // Resort
-        if (sortFrom != -1)
+        for (int i = 0; i < tabItemsInfo.Count; i++)
         {
-            for (int i = 0; i < tabItems.Count; i++)
-            {
-                if (i >= sortFrom)
-                {
-                    tabItems[i].GetComponent<RectTransform>().anchoredPosition = new Vector3(0, -10 - sortFrom*20, 0);
-                }
-            }
+            tabItemsInfo[i].obj.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, -10 - i*20, 0);
         }
     }
-    public void CheckRoleVisibility (string playerName, string roleName, GameObject newItem)
+    public void CheckRoleVisibility (string targetPlayerName, string targetRoleName, GameObject newItem, string forcedRole)
     {
         // Get Item if not got
 
         if (newItem == null)
         {
-            foreach(GameObject g in tabItems)
+            foreach(TabInfo t in tabItemsInfo)
             {
-                if (g.name == playerName)
+                if (t.playerName == targetPlayerName)
                 {
-                    newItem = g;
+                    newItem = t.obj;
                 }
             }
         }
 
-        // Check
-        if (roleName != "" && roleName != null)
+        if (newItem != null)
         {
-            if (playerName == Player.player.playerName)
-            {
-                newItem.transform.Find("RoleImage").gameObject.SetActive(true);
-            }
-            else
-            {
-                RoleInfo roleInfo = null;
-                // Get Role Info
-                for (int i = 0; i < roles.Count; i++)
-                {
-                    if (ids[i] == Player.player.playerName)
-                    {
-                        // Find Role Info
-                        for (int a = 0; a < ReferenceInfo.referenceInfo.rolesInfo.Length; a++)
-                        {
-                            if (ReferenceInfo.referenceInfo.rolesInfo[a].name == roles[i])
-                            {
-                                roleInfo = ReferenceInfo.referenceInfo.rolesInfo[a];
-                                // End
-                                a = ReferenceInfo.referenceInfo.rolesInfo.Length;
-                            }
-                        }
-                        // End
-                        i = roles.Count;
-                    }
-                }
-                // Get Viewed Role Info
-                RoleInfo viewedRoleInfo = null;
-                for (int a = 0; a < ReferenceInfo.referenceInfo.rolesInfo.Length; a++)
-                {
-                    if (ReferenceInfo.referenceInfo.rolesInfo[a].name == roleName)
-                    {
-                        viewedRoleInfo = ReferenceInfo.referenceInfo.rolesInfo[a];
-                        // End
-                        a = ReferenceInfo.referenceInfo.rolesInfo.Length;
-                    }
-                }
+            // Change Role if Forced
 
-                newItem.transform.Find("RoleImage").gameObject.SetActive(false);
+            // Check
+            if (targetRoleName != "" && targetRoleName != null)
+            {
+                if (targetPlayerName == Player.player.playerName)
+                {
+                    newItem.transform.Find("RoleImage").gameObject.SetActive(true);
 
-                if (roleInfo.name != "amnesiac" && viewedRoleInfo.name == "detective")
-                {
-                    newItem.transform.Find("RoleImage").gameObject.SetActive(true);
-                }
-                else if (roleInfo.roleWinType == "traitor" && viewedRoleInfo.roleWinType == "traitor")
-                {
-                    newItem.transform.Find("RoleImage").gameObject.SetActive(true);
-                }
-                else if (roleInfo.roleWinType != "innocent" && viewedRoleInfo.name == "jester")
-                {
-                    newItem.transform.Find("RoleImage").gameObject.SetActive(true);
+                    if (forcedRole != "")
+                    {
+                        // Change Tab Role Icon to Forced Role
+                        RoleInfo roleInfo = ReferenceInfo.referenceInfo.RoleInformation(forcedRole);
+
+                        newItem.transform.Find("RoleImage").GetComponent<Image>().sprite = roleInfo.imageGlow;
+                    }
                 }
                 else
                 {
+                    RoleInfo roleInfo = null;
+                    // Get Role Info
+                    if (forcedRole != "")
+                    {
+                        roleInfo = ReferenceInfo.referenceInfo.RoleInformation(forcedRole);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < roles.Count; i++)
+                        {
+                            if (ids[i] == Player.player.playerName)
+                            {
+                                roleInfo = ReferenceInfo.referenceInfo.RoleInformation(roles[i]);
+                                // End
+                                i = roles.Count;
+                            }
+                        }
+                    }
+                    // Get Viewed Role Info
+                    RoleInfo viewedRoleInfo = ReferenceInfo.referenceInfo.RoleInformation(targetRoleName);
+
                     newItem.transform.Find("RoleImage").gameObject.SetActive(false);
+
+                    // Determin whether you can see target role based on player role
+                    if (roleInfo.name != "amnesiac" && viewedRoleInfo.name == "detective")
+                    {
+                        newItem.transform.Find("RoleImage").gameObject.SetActive(true);
+                    }
+                    else if (roleInfo.roleWinType == "traitor" && viewedRoleInfo.roleWinType == "traitor")
+                    {
+                        newItem.transform.Find("RoleImage").gameObject.SetActive(true);
+                    }
+                    else if (roleInfo.roleWinType != "innocent" && viewedRoleInfo.name == "jester")
+                    {
+                        newItem.transform.Find("RoleImage").gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        newItem.transform.Find("RoleImage").gameObject.SetActive(false);
+                    }
                 }
             }
-        }
-        else
-        {
-            newItem.transform.Find("RoleImage").gameObject.SetActive(false);
-            newItem.transform.Find("StatusText").GetComponent<Text>().text = "";
+            else
+            {
+                // Reset Role Visibility to Pre-round visuals
+
+                newItem.transform.Find("RoleImage").gameObject.SetActive(false);
+                newItem.transform.Find("StatusText").GetComponent<Text>().text = "";
+            }
         }
     }
     //
@@ -1082,15 +1060,7 @@ public class PlayerCanvas : NetworkBehaviour
             {
                 Color color = new Color(0.5f, 0.5f, 0.5f, 1);
                 // Find Color based on given role name
-                for (int i = 0; i < ReferenceInfo.referenceInfo.rolesInfo.Length; i++)
-                {
-                    if (ReferenceInfo.referenceInfo.rolesInfo[i].name == shopType)
-                    {
-                        color = ReferenceInfo.referenceInfo.rolesInfo[i].roleColour;
-                        // End
-                        i = ReferenceInfo.referenceInfo.rolesInfo.Length;
-                    }
-                }
+                color = ReferenceInfo.referenceInfo.RoleInformation(shopType).roleColour;
 
                 // Set Panel Color
 
@@ -1342,6 +1312,8 @@ public class PlayerCanvas : NetworkBehaviour
 
     public void ToggleBodyInspection(string playerName, string inspection)
     {
+        print("Opening/Closing");
+
         // Run if is not new info
         if (bodyName != playerName)
         {
@@ -1352,22 +1324,19 @@ public class PlayerCanvas : NetworkBehaviour
             if (bodyName != null && bodyName != "")
             {
                 bodyNameText.text = bodyName;
-                for (int i = 0; i < ReferenceInfo.referenceInfo.rolesInfo.Length; i++)
-                {
-                    if (ReferenceInfo.referenceInfo.rolesInfo[i].name == inspection)
-                    {
-                        bodyRoleImage.sprite = ReferenceInfo.referenceInfo.rolesInfo[i].image;
-                        print(ReferenceInfo.referenceInfo.rolesInfo[i].name);
 
-                        if (inspection == "" || inspection == null)
-                        {
-                            bodyQuestionMark.text = "?";
-                        }
-                        else
-                        {
-                            bodyQuestionMark.text = "";
-                        }
-                    }
+                RoleInfo roleInfo = ReferenceInfo.referenceInfo.RoleInformation(inspection);
+
+                bodyRoleImage.sprite = roleInfo.image;
+                print("Inspected body of " + roleInfo.name);
+
+                if (inspection == "" || inspection == null)
+                {
+                    bodyQuestionMark.text = "?";
+                }
+                else
+                {
+                    bodyQuestionMark.text = "";
                 }
             }
         }

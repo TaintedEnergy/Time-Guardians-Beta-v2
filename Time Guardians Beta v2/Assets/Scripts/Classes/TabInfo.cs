@@ -8,4 +8,6 @@ public class TabInfo
     //
     public string roleName;
     public string status;
+    //
+    public GameObject obj;
 }

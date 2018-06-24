@@ -823,7 +823,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11475086, guid: c0978251ff7b10d4fb954a4b56acd9f0, type: 2}
       propertyPath: m_MaxBufferedPackets
-      value: 512
+      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 11475086, guid: c0978251ff7b10d4fb954a4b56acd9f0, type: 2}
       propertyPath: m_Channels.Array.data[2]
@@ -887,7 +887,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11475086, guid: c0978251ff7b10d4fb954a4b56acd9f0, type: 2}
       propertyPath: m_MatchHost
-      value: us1-mm.unet.unity3d.com
+      value: ap1-mm.unet.unity3d.com
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c0978251ff7b10d4fb954a4b56acd9f0, type: 2}
@@ -918,7 +918,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9254b7a9025d994ca18e07697fc5058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialDelay: 3
+  initialDelay: 10
   restartDelay: 15
   rolesInfo:
   - name: 
@@ -974,7 +974,7 @@ MonoBehaviour:
   - stringArray:
     - traitor
   - stringArray:
-    - innocent
+    - amnesiac
   - stringArray:
     - innocent
   - stringArray:
@@ -1330,7 +1330,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: d733229c857ad7e42bc850666cc1391e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7aac077717b0788428d1e91ca57df0d3, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

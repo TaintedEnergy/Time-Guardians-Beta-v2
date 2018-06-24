@@ -4,6 +4,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using Prototype.NetworkLobby;
+using System;
 
 [System.Serializable]
 public class ToggleEvent : UnityEvent<bool> { }
@@ -20,7 +21,8 @@ public class Player : NetworkBehaviour
     [SerializeField] ToggleEvent onToggleRemote;
 
     public static List<Player> players = new List<Player>();
-    
+    public static List<Player> clientPlayers = new List<Player>();
+
     NetworkAnimator anim;
     Rigidbody rigid;
 
@@ -45,7 +47,9 @@ public class Player : NetworkBehaviour
 
     public Vector3[] velocities = new Vector3[20];
 
-    
+    // Debugging
+    public int cmds;
+    public int rpcs;
 
     void Start()
     {
@@ -75,12 +79,6 @@ public class Player : NetworkBehaviour
     {
         if (!isLocalPlayer)
         {
-            if (playerName != "")
-            {
-                OnNameChanged(playerName);
-                OnColorChanged(playerColor);
-            }
-
             if (maskedObject.activeInHierarchy != masked)
             {
                 maskedObject.SetActive(masked);
@@ -104,32 +102,43 @@ public class Player : NetworkBehaviour
 
             anim.animator.SetFloat("Speed", Input.GetAxis("Vertical"));
             anim.animator.SetFloat("Strafe", Input.GetAxis("Horizontal"));
-
-            if (playerName != null && playerName != "" && NetworkGameInfo.networkGameInfo != null && !NetworkGameInfo.networkGameInfo.localised)
-            {
-                NetworkGameInfo.networkGameInfo.localised = true;
-                CmdSendName(playerName);
-                print("Alocating as " + playerName);
-            }
         }
     }
 
     void FixedUpdate()
     {
+        Velocities();
+
         if (isServer)
         {
-            Velocities();
-
             // Check for left players
             for (int i = 0; i < players.Count; i++)
             {
-                if (players[i] == null)
+                if (players[i] == null && !NetworkGameInfo.networkGameInfo.playerSlotsRemoving.Contains(i))
                 {
-                    NetworkGameInfo.networkGameInfo.LeftMemeber();
-                    players.RemoveAt(i);
-                    i = players.Count;
-
                     print("Detected Player Left");
+
+                    NetworkGameInfo.networkGameInfo.LeftMemeber();
+                    // players.RemoveAt(i);
+                    List<Player> p = new List<Player>(players.Count-1);
+                    for (int a = 0; a < p.Count; a++)
+                    {
+                        if (a != i)
+                        {
+                            p.Add(players[a]);
+                        }
+                        players = p;
+                    }
+                    // End
+                    i = players.Count;
+                }
+            }
+
+            if (clientPlayers.Count != players.Count)
+            {
+                foreach (Player p in players)
+                {
+                    p.RpcSyncPlayers();
                 }
             }
         }
@@ -173,6 +182,11 @@ public class Player : NetworkBehaviour
             if (cameraScript.enabled == Cursor.visible)
             {
                 cameraScript.enabled = !Cursor.visible;
+            }
+
+            if (clientPlayers.Count == 0)
+            {
+                SyncPlayers();
             }
         }
     }
@@ -221,21 +235,19 @@ public class Player : NetworkBehaviour
     }
 
     [Command]
-    void CmdSendName(string value)
-    {
-        NetworkGameInfo.networkGameInfo.Ids(value);
-    }
-
-    [Command]
     public void CmdRole(string value)
     {
+        cmds++;
+
         role = value;
     }
 
     [Command]
     public void CmdSendDamage(string playerId, int damage, int direction, string hitter)
     {
-        for(int i = 0; i < players.Count; i++)
+        cmds++;
+
+        for (int i = 0; i < players.Count; i++)
         {
             if (players[i].playerName == playerId && players[i].alive)
             {
@@ -247,6 +259,8 @@ public class Player : NetworkBehaviour
     [Command]
     public void CmdGotKilled(string killer)
     {
+        cmds++;
+
         if (role == "jester" && killer != playerName && (killer != null && killer != ""))
         {
             NetworkGameInfo.networkGameInfo.JesterWin(playerName);
@@ -255,18 +269,16 @@ public class Player : NetworkBehaviour
         {
             if (players[i].playerName == killer && (killer != null && killer != "") && NetworkGameInfo.networkGameInfo.gameOn)
             {
+                print(players[i].playerName + " == " + killer);
+                print(NetworkGameInfo.networkGameInfo.roles[i]);
+                print(NetworkGameInfo.networkGameInfo.playerIds[i]);
+
                 // Change Role To Amnesiac
                 if (NetworkGameInfo.networkGameInfo.roles[i] == "amnesiac")
                 {
+                    print(killer + " will now try to become a " + role);
                     players[i].ChangeRole(role);
                     players[i].RpcChangeRoleVisual(role);
-                }
-
-
-                // Check Role Visibility
-                foreach (Player p in players)
-                {
-                    p.RpcCheckTabVis(killer, role);
                 }
             }
         }
@@ -288,37 +300,44 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     void RpcChangeRoleVisual(string newRole)
     {
-        // Find Role Info
-        for (int i = 0; i < ReferenceInfo.referenceInfo.rolesInfo.Length; i++)
+        rpcs++;
+
+        print(playerName + " is trying to change role to " + newRole);
+
+        if (isLocalPlayer)
         {
-            if (newRole == ReferenceInfo.referenceInfo.rolesInfo[i].name)
+            RoleInfo roleInfo = ReferenceInfo.referenceInfo.RoleInformation(newRole);
+
+            print(playerName + ", (me) is trying to change role to " + newRole);
+            PlayerCanvas.canvas.SetRoleVisual(roleInfo.name, roleInfo.displayedName, roleInfo.roleColour, roleInfo.textColour, roleInfo.image);
+
+            foreach (Player p in clientPlayers)
             {
-                // Display new role
-                PlayerCanvas.canvas.SetRoleVisual(ReferenceInfo.referenceInfo.rolesInfo[i].name, ReferenceInfo.referenceInfo.rolesInfo[i].displayedName, ReferenceInfo.referenceInfo.rolesInfo[i].roleColour, ReferenceInfo.referenceInfo.rolesInfo[i].textColour, ReferenceInfo.referenceInfo.rolesInfo[i].image);
+                PlayerCanvas.canvas.CheckRoleVisibility(p.playerName, p.clientRole, null, newRole);
             }
         }
     }
 
     [ClientRpc]
-    void RpcCheckTabVis(string playerName, string roleName)
-    {
-        PlayerCanvas.canvas.CheckRoleVisibility(playerName, roleName, null);
-    }
-
-    [ClientRpc]
     public void RpcStatus(string id, string status, bool showRole)
     {
+        rpcs++;
+
         PlayerCanvas.canvas.TabMenuEdit(id, status, showRole);
     }
 
     [ClientRpc]
     public void RpcPickUp(int pickUpId, string itemName, string itemType)
     {
+        rpcs++;
+
         inventory.CollectNewItem(pickUpId, itemName, itemType);
     }
     [Command]
     public void CmdRequestPickupDestroy(int pickUpId)
     {
+        cmds++;
+
         for (int i = 0; i < PickUp.pickUps.Count; i++)
         {
             if (PickUp.pickUps[i].GetComponent<PickUp>().id == pickUpId)
@@ -341,6 +360,7 @@ public class Player : NetworkBehaviour
     void DisablePlayer()
     {
         onToggleShared.Invoke(false);
+        rigid.isKinematic = true;
 
         if (isLocalPlayer)
         {
@@ -354,6 +374,14 @@ public class Player : NetworkBehaviour
 
             PlayerCanvas.canvas.View("", -1, false);
             PlayerCanvas.canvas.ScopeImage(false);
+            
+            foreach (Player p in clientPlayers)
+            {
+                if (p.alive && p.nameText != null)
+                {
+                    p.nameText.gameObject.SetActive(true);
+                }
+            }
 
             inventory.ResetInv();
 
@@ -363,6 +391,8 @@ public class Player : NetworkBehaviour
         {
             onToggleRemote.Invoke(false);
         }
+        
+        nameText.gameObject.SetActive(false);
 
         alive = false;
     }
@@ -375,6 +405,7 @@ public class Player : NetworkBehaviour
         }
 
         onToggleShared.Invoke(true);
+        rigid.isKinematic = false;
 
         if (isLocalPlayer)
         {
@@ -383,6 +414,11 @@ public class Player : NetworkBehaviour
             LobbyTopPanel.CursorLocked("deathNote", "remove");
 
             onToggleLocal.Invoke(true);
+            
+            foreach (Player p in players)
+            {
+                p.nameText.gameObject.SetActive(false);
+            }
         }
             
         else
@@ -440,6 +476,8 @@ public class Player : NetworkBehaviour
     [Command]
     public void CmdToggleMasked(bool sound)
     {
+        cmds++;
+
         masked = !masked;
 
         if (sound)
@@ -451,9 +489,30 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     public void RpcPlayMaskSound(bool value)
     {
+        rpcs++;
+
         if (!isLocalPlayer)
         {
             PlayMaskSound(value);
+        }
+    }
+
+    [ClientRpc]
+    public void RpcSyncPlayers()
+    {
+        rpcs++;
+
+        SyncPlayers();
+    }
+    void SyncPlayers()
+    {
+        clientPlayers.Clear();
+
+        GameObject[] newPlayers = GameObject.FindGameObjectsWithTag("Player");
+
+        foreach (GameObject g in newPlayers)
+        {
+            clientPlayers.Add(g.GetComponent<Player>());
         }
     }
 
@@ -476,6 +535,8 @@ public class Player : NetworkBehaviour
     [Command]
     public void CmdRequestBodyDrop (Vector3 pos, Quaternion rot, string name)
     {
+        cmds++;
+
         BodyDrop(pos, rot, name);
     }
 
@@ -510,12 +571,16 @@ public class Player : NetworkBehaviour
     [Command]
     void CmdSendLiveState(string name, int count)
     {
+        cmds++;
+
         NetworkGameInfo.networkGameInfo.UpdateRoleCount(name, count);
     }
 
     [ClientRpc]
     public void RpcRespawn()
     {
+        rpcs++;
+
         if (isLocalPlayer || playerControllerId == -1)
             anim.SetTrigger("Restart");
 
@@ -535,7 +600,17 @@ public class Player : NetworkBehaviour
     {
         playerName = value;
         gameObject.name = playerName;
-        // nameText.text = playerName;
+        nameText.text = playerName;
+
+        if (NetworkGameInfo.networkGameInfo == null)
+        {
+            NetworkGameInfo.playerIdsToAdd.Add(playerName);
+        }
+        else
+        {
+            NetworkGameInfo.networkGameInfo.playerIds.Add(playerName);
+        }
+        print("Alocating as " + playerName);
     }
 
     void OnColorChanged(Color value)
@@ -552,7 +627,12 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     public void RpcRoundOver(string roleName, string[] winners)
     {
-        DisablePlayer();
+        rpcs++;
+
+        if (alive)
+        {
+            DisablePlayer();
+        }
 
         if (isLocalPlayer)
         {
@@ -564,7 +644,7 @@ public class Player : NetworkBehaviour
         // PlayerCanvas.canvas.TabMenuClear();
         for (int i = 0; i < NetworkGameInfo.networkGameInfo.playerIds.Count; i++)
         {
-            PlayerCanvas.canvas.CheckRoleVisibility(NetworkGameInfo.networkGameInfo.playerIds[i], "", null);
+            PlayerCanvas.canvas.CheckRoleVisibility(NetworkGameInfo.networkGameInfo.playerIds[i], "", null, "");
         }
 
         Invoke("RpcRespawn", 4);
@@ -578,6 +658,8 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     public void RpcRequestCallback(string callback, int time)
     {
+        rpcs++;
+
         if (isLocalPlayer)
         {
             NetworkGameInfo.networkGameInfo.Callback(callback, time);

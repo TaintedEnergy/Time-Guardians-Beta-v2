@@ -64,7 +64,7 @@ public class ShotEffectsManager : MonoBehaviour
             lines[line].enabled = true;
 
             Quaternion q = transform.rotation;
-            if (muzzleFlash != null)
+            if (muzzleFlash != null && impactEffect[impactIndex] != null)
             {
                 transform.LookAt(impactEffect[impactIndex].gameObject.transform.position);
             }
@@ -96,9 +96,12 @@ public class ShotEffectsManager : MonoBehaviour
     //Play impact effect and target position
     public void PlayImpactEffect(Vector3 impactPosition)
     {
-        impactEffect[impactIndex].transform.position = impactPosition;
-        impactEffect[impactIndex].Stop();
-        impactEffect[impactIndex].Play();
+        if (impactEffect[impactIndex] != null)
+        {
+            impactEffect[impactIndex].transform.position = impactPosition;
+            impactEffect[impactIndex].Stop();
+            impactEffect[impactIndex].Play();
+        }
 
         impactIndex++;
         if (impactIndex >= impactEffect.Length)

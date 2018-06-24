@@ -2,6 +2,7 @@
 using UnityEngine.Networking;
 using System.Collections;
 using Prototype.NetworkLobby;
+using System.Collections.Generic;
 
 public class PlayerShooting : NetworkBehaviour
 {
@@ -392,7 +393,7 @@ public class PlayerShooting : NetworkBehaviour
                     currentItemObject.GetComponent<Animator>().SetInteger("Force", 0);
 
                     ClientGrab(false);
-                    CmdGrabObject(Vector3.zero, Vector3.zero, 0, false);
+                    CmdGrabObject(Vector3.zero, Vector3.zero, Vector3.zero, 0, false);
                 }
 
                 // Selecting Object
@@ -407,7 +408,7 @@ public class PlayerShooting : NetworkBehaviour
                         if (Vector3.Distance(grabbing.transform.position, grabPosition.transform.position) > maxGrabDistance)
                         {
                             ClientGrab(false);
-                            CmdGrabObject(Vector3.zero, Vector3.zero, 0, false);
+                            CmdGrabObject(Vector3.zero, Vector3.zero, Vector3.zero, 0, false);
                         }
                         // Moving Object
                         if (grabbing != null)
@@ -433,7 +434,7 @@ public class PlayerShooting : NetworkBehaviour
                     {
                         grabbing = hit.transform.root.transform.GetComponent<Rigidbody>();
                         ClientGrab(true);
-                        CmdGrabObject(firePosition.position, firePosition.forward, grabRange, true);
+                        CmdGrabObject(firePosition.position, firePosition.forward, grabHit.transform.root.transform.position, grabRange, true);
                     }
                 }
 
@@ -907,8 +908,13 @@ public class PlayerShooting : NetworkBehaviour
     }
 
     [Command]
-    void CmdGrabObject (Vector3 pos, Vector3 dir, float range, bool getAuthority)
+    void CmdGrabObject (Vector3 pos, Vector3 dir, Vector3 objPos, float range, bool getAuthority)
     {
+        if (Player.player != null)
+        {
+            Player.player.cmds++;
+        }
+
         if (player != Player.player)
         {
             // Server Finds Object
@@ -916,14 +922,39 @@ public class PlayerShooting : NetworkBehaviour
             {
                 // Finding potential grabby
 
+                // Based on what player is looking at
+
                 RaycastHit hit;
 
                 Ray ray = new Ray(pos, dir);
                 bool result = Physics.Raycast(ray, out hit, range);
 
-                if (result && hit.transform.root.transform.GetComponent<Rigidbody>() != null && hit.transform.GetComponent<Player>() == null)
+                if (result && hit.transform.root.transform.GetComponent<Rigidbody>() != null && hit.transform.GetComponent<Player>() == null && 1 == 2)
                 {
                     GrabObject(hit.transform.root.transform.GetComponent<Rigidbody>());
+                }
+                else
+                {
+                    // Based on closest object to player's object's position
+
+                    Collider[] objectsInRange = Physics.OverlapSphere(objPos, 0.1f);
+                    List<Rigidbody> roots = new List<Rigidbody>();
+
+                    foreach (Collider c in objectsInRange)
+                    {
+                        if (c.transform.root.GetComponent<Rigidbody>() != null && !roots.Contains(c.transform.root.GetComponent<Rigidbody>()))
+                        {
+                            roots.Add(c.transform.root.GetComponent<Rigidbody>());
+                            print(c.transform.root.gameObject.name);
+                        }
+                    }
+
+                    if (roots.Count != 0) { print(roots.Count); }
+
+                    if (roots.Count == 1)
+                    {
+                        GrabObject(roots[0]);
+                    }
                 }
             }
 
@@ -964,6 +995,11 @@ public class PlayerShooting : NetworkBehaviour
     [Command]
     void CmdSendGrabTransform (Vector3 pos, Quaternion rot, Vector3 vel, Vector3 angVel)
     {
+        if (Player.player != null)
+        {
+            Player.player.cmds++;
+        }
+
         if (grabbing != null)
         {
             grabbing.position = pos;
@@ -981,6 +1017,11 @@ public class PlayerShooting : NetworkBehaviour
     [Command]
     void CmdRequestThrow (Vector3 pos, Quaternion rot, Vector3 vel, string itemName)
     {
+        if (Player.player != null)
+        {
+            Player.player.cmds++;
+        }
+
         GameObject obj = Instantiate(throwable, pos, rot);
         obj.GetComponent<Rigidbody>().velocity = vel;
         NetworkServer.Spawn(obj);
@@ -991,6 +1032,11 @@ public class PlayerShooting : NetworkBehaviour
     [Command]
     void CmdGiveVelocity(Vector3 firePos, Vector3 forwardPos, float range, float hitStrength)
     {
+        if (Player.player != null)
+        {
+            Player.player.cmds++;
+        }
+
         RaycastHit hit;
 
         Ray ray = new Ray(firePos, forwardPos);
@@ -1015,6 +1061,11 @@ public class PlayerShooting : NetworkBehaviour
     [Command]
     void CmdChangeBodyInspection(string id, string inspection)
     {
+        if (Player.player != null)
+        {
+            Player.player.cmds++;
+        }
+
         for (int i = 0; i < NetworkGameInfo.bodies.Count; i++)
         {
             if (NetworkGameInfo.bodies[i].GetComponent<Body>().playerName == id)
@@ -1057,7 +1108,7 @@ public class PlayerShooting : NetworkBehaviour
                 if (grabbing != null)
                 {
                     ClientGrab(false);
-                    CmdGrabObject(Vector3.zero, Vector3.zero, 0, false);
+                    CmdGrabObject(Vector3.zero, Vector3.zero, Vector3.zero, 0, false);
                 }
             }
 
@@ -1113,12 +1164,22 @@ public class PlayerShooting : NetworkBehaviour
     [Command]
     void CmdProcessShotEffects (bool playImpact, Vector3 point, Vector3 shootDirection)
     {
+        if (Player.player != null)
+        {
+            Player.player.cmds++;
+        }
+
         RpcProcessShotEffects(playImpact, point, shootDirection);
     }
 
     [ClientRpc]
     void RpcProcessShotEffects(bool playImpact, Vector3 point, Vector3 shootDirection)
     {
+        if (Player.player != null)
+        {
+            Player.player.rpcs++;
+        }
+
         if (currentEffect != null)
         {
             if (!isLocalPlayer)

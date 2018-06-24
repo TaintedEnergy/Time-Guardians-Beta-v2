@@ -140,6 +140,11 @@ public class PickUp : NetworkBehaviour
     [ClientRpc]
     public void RpcDisable()
     {
+        if (Player.player != null)
+        {
+            Player.player.rpcs++;
+        }
+
         item.obj.SetActive(false);
     }
 }

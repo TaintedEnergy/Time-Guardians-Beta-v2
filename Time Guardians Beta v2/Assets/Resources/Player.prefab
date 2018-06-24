@@ -3126,7 +3126,7 @@ GameObject:
   - component: {fileID: 4336239113113500}
   - component: {fileID: 114138301299006488}
   m_Layer: 0
-  m_Name: Model
+  m_Name: Player Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30165,7 +30165,7 @@ Transform:
   m_GameObject: {fileID: 1465199664017862}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.0000000745058, y: 0.13499996, z: -0.00000010430815}
-  m_LocalScale: {x: 1.0000017, y: 1, z: 1.0000017}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4016280992285300}
   - {fileID: 4522656343829806}
@@ -52843,7 +52843,7 @@ MonoBehaviour:
   scopeImage: 0
   sprayCount: 8
   sprayWidth: 0.2
-  hitStrength: 2
+  hitStrength: 0.6
   canPushPlayers: 1
   hasAction: 1
   actionTime: 0.6
@@ -53184,10 +53184,10 @@ MonoBehaviour:
   cameraScript: {fileID: 114585737396857842}
   mouseAxis: {x: 0, y: 0}
   handMovement: {x: 0, y: 0, z: 0}
-  handMoveMultiplier: {x: 5, y: 6, z: 4}
-  handMoveSpeed: {x: 1, y: 6, z: 3}
-  handMoveSlowdown: {x: 0.995, y: 0.99, z: 0.99}
-  handMoveRange: {x: 3, y: 1.5, z: 2}
+  handMoveMultiplier: {x: -3, y: 20, z: 1}
+  handMoveSpeed: {x: 1, y: 10, z: 3}
+  handMoveSlowdown: {x: 0.9, y: 0.99, z: 0.99}
+  handMoveRange: {x: 3, y: 0.5, z: 2}
   currentItem: 
   firstItem:
   - {fileID: 1541226076283596}
@@ -53669,17 +53669,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1796383553888938}
-        m_MethodName: SetActive
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 1698600426834964}
         m_MethodName: SetActive
         m_Mode: 0
@@ -53756,6 +53745,8 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
+  cmds: 0
+  rpcs: 0
 --- !u!114 &114749406879037800
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -54083,7 +54074,7 @@ MonoBehaviour:
   - {fileID: 1245133617193412}
   - {fileID: 1183900159355676}
   - {fileID: 1952660397166130}
-  - {fileID: 1084493080922012}
+  - {fileID: 1465199664017862}
   itemEffects:
   - {fileID: 114645205365523450}
   - {fileID: 114545543901055014}

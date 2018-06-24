@@ -472,6 +472,7 @@ namespace Prototype.NetworkLobby
             NetworkGameInfo.pickUpSpawnpoints = new List<GameObject>();
             NetworkGameInfo.networkGameInfo = null;
             NetworkGameInfo.bodies = new List<GameObject>();
+            NetworkGameInfo.playerIdsToAdd.Clear();
             PlayerCanvas.canvas = null;
             PlayerCanvas.selectedShop = null;
             PickUp.pickUps = new List<GameObject>();

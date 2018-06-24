@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 using System.Collections.Generic;
@@ -9,24 +10,25 @@ public class Body : NetworkBehaviour
     [SyncVar(hook = "OnIdChange")] public string identified;
 
     Rigidbody rigid;
-    float maxVelocity = 100f;
+    float maxVelocity = 50f;
 
-    private void Start()
+    private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
 
-        foreach (Player p in Player.players)
+        if (isServer)
         {
-            if (p.playerName == playerName)
-            {
-                p.GetComponentInChildren<RendererToggler>().DisableRenderers();
-            }
+            DisableRender();
         }
     }
 
     void OnNameChange(string value)
     {
         playerName = value;
+
+        // Disable Render
+
+        DisableRender();
     }
     void OnIdChange(string value)
     {
@@ -37,11 +39,24 @@ public class Body : NetworkBehaviour
     {
         if (rigid.velocity.magnitude > maxVelocity)
         {
-            rigid.velocity /= rigid.velocity.magnitude / maxVelocity;
+            rigid.velocity *= 0.9f;
         }
-        if (transform.position.y < -1000f && !rigid.isKinematic)
+        if (transform.position.y < -500f)
         {
-            rigid.isKinematic = true;
+            gameObject.SetActive(false);
         }
+    }
+
+    void DisableRender()
+    {
+        foreach (GameObject g in GameObject.FindGameObjectsWithTag("Player"))
+        {
+            if (g.GetComponent<Player>().playerName == playerName)
+            {
+                g.GetComponentInChildren<RendererToggler>().DisableRenderers();
+            }
+        }
+
+        print("Body tells to disable at " + DateTime.Now);
     }
 }

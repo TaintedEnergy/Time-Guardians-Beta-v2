@@ -30,7 +30,10 @@ public class Inventory : NetworkBehaviour
         player = GetComponent<Player>();
 
         ResetInv();
-        Invoke("ResetInv", 1f);
+        if (isServer)
+        {
+            Invoke("ResetInv", 3f);
+        }
     }
 
     void Update()
@@ -86,7 +89,7 @@ public class Inventory : NetworkBehaviour
             {
                 if (player.playerShooting.firstItem[i].GetComponent<ItemInfo>().itemName == items[selected].itemName && player.playerShooting.firstItem[i].GetComponent<ItemInfo>().canDrop)
                 {
-                    DropItem();
+                    DropItem(false);
                 }
             }
         }
@@ -165,10 +168,13 @@ public class Inventory : NetworkBehaviour
         }
     }
 
-    void DropItem()
+    void DropItem(bool forced)
     {
-        CmdDropItem(items[selected].itemName);
-        NewItem(selected, "empty");
+        if (Player.player != null && (forced || (!forced && Player.player.playerShooting.elapsedTime == 0)))
+        {
+            CmdDropItem(items[selected].itemName);
+            NewItem(selected, "empty");
+        }
     }
 
 
@@ -270,6 +276,11 @@ public class Inventory : NetworkBehaviour
     [Command]
     public void CmdDropItem(string itemName)
     {
+        if (Player.player != null)
+        {
+            Player.player.cmds++;
+        }
+
         GameObject newPickup = Instantiate(pickUp, dropPosition.transform.position, dropPosition.transform.rotation);
         NetworkServer.Spawn(newPickup);
 

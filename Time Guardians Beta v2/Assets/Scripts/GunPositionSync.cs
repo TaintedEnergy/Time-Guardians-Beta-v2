@@ -126,6 +126,11 @@ public class GunPositionSync : NetworkBehaviour
     [Command]
     public void CmdChangeItem(string value)
     {
+        if (Player.player != null)
+        {
+            Player.player.cmds++;
+        }
+
         currentItem = value;
     }
 }

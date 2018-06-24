@@ -7,8 +7,6 @@ public class NetworkGameInfo : NetworkBehaviour
 {
     public static NetworkGameInfo networkGameInfo;
 
-    public bool localised;
-
     [SyncVar(hook = "OnGameOnChange")] public bool gameOn;
 
     [SyncVar(hook = "OnPlayerIdsChange")] public SyncListString playerIds = new SyncListString();
@@ -17,13 +15,17 @@ public class NetworkGameInfo : NetworkBehaviour
     [SyncVar(hook = "OnInnocentCountChange")] public int innocentAlive;
     [SyncVar(hook = "OnTraitorCountChange")] public int traitorAlive;
     [SyncVar(hook = "OnSoloCountChange")] public int soloAlive;
-    
+
     public static List<Player> players = new List<Player>();
 
     public static List<GameObject> bodies = new List<GameObject>();
 
     public static List<GameObject> pickUpSpawnpoints = new List<GameObject>();
     [SerializeField] GameObject pickUp;
+
+    public static List<string> playerIdsToAdd = new List<string>();
+    List<string> playerIdsToRemove = new List<string>();
+    public List<int> playerSlotsRemoving = new List<int>();
 
     private void Awake()
     {
@@ -46,6 +48,12 @@ public class NetworkGameInfo : NetworkBehaviour
             PlayerCanvas.canvas.Countdown();
         }
 
+        for (int i = 0; i < playerIdsToAdd.Count; i++)
+        {
+            playerIds.Add(playerIdsToAdd[i]);
+            print("Added " + playerIdsToAdd[i]);
+        }
+        playerIdsToAdd.Clear();
     }
 
     [ServerCallback]
@@ -53,6 +61,8 @@ public class NetworkGameInfo : NetworkBehaviour
     {
         // roles = new SyncListString();
         RemoveBodies();
+        playerIdsToRemove.Clear();
+        playerSlotsRemoving.Clear();
 
         SetUp();
 
@@ -91,28 +101,21 @@ public class NetworkGameInfo : NetworkBehaviour
         for (int i = 0; i < playerIds.Count; i++)
         {
             roles.Add(roundRoleOrder[i]);
-
-            string roleTeamType = "";
+            
             // Finding Win Type
-            for (int a = 0; a < ReferenceInfo.referenceInfo.rolesInfo.Length; a++)
-            {
-                if (roundRoleOrder[i] == ReferenceInfo.referenceInfo.rolesInfo[a].name)
-                {
-                    roleTeamType = ReferenceInfo.referenceInfo.rolesInfo[a].roleWinType;
-                    // End
-                    a = ReferenceInfo.referenceInfo.rolesInfo.Length;
-                }
-            }
+            RoleInfo roleInfo = ReferenceInfo.referenceInfo.RoleInformation(roundRoleOrder[i]);
+
             // Adding count by team
-            if (roleTeamType == "innocent")
+
+            if (roleInfo.roleWinType == "innocent")
             {
                 innocentAlive++;
             }
-            if (roleTeamType == "traitor")
+            if (roleInfo.roleWinType == "traitor")
             {
                 traitorAlive++;
             }
-            if (roleTeamType == "solo")
+            if (roleInfo.roleWinType == "solo")
             {
                 soloAlive++;
             }
@@ -135,19 +138,13 @@ public class NetworkGameInfo : NetworkBehaviour
     }
 
     [Server]
-    public void Ids(string value)
-    {
-        playerIds.Add(value);
-    }
-
-    [Server]
     public void LeftMemeber()
     {
         int foundAt = -1;
 
         for (int i = 0; i < players.Count; i++)
         {
-            if (players[i] == null)
+            if (players[i] == null && !playerSlotsRemoving.Contains(i))
             {
                 foundAt = i;
                 i = players.Count;
@@ -165,16 +162,22 @@ public class NetworkGameInfo : NetworkBehaviour
 
             // Remove Player from Players List
             RpcLeftMember(playerIds[foundAt]);
+
             players.RemoveAt(foundAt);
-            playerIds.RemoveAt(foundAt);
+            playerIdsToRemove.Add(playerIds[foundAt]);
+            playerSlotsRemoving.Add(foundAt);
         }
     }
 
     [ClientRpc]
     void RpcLeftMember (string playerName)
     {
+        if (Player.player != null)
+        {
+            Player.player.rpcs++;
+        }
+
         PlayerCanvas.canvas.TabMenuRemove(playerName);
-        PlayerCanvas.canvas.SyncData(roles, playerIds);
     }
 
     [ServerCallback]
@@ -186,39 +189,29 @@ public class NetworkGameInfo : NetworkBehaviour
             return;
         }
 
-        // Detect and manage deaths and death count
-        string releventRole = "";
-        string releventWinType = "";
+        // Finding Role Info
+        RoleInfo roleInfo = null;
 
-        // Finding Role Type
         for (int i = 0; i < playerIds.Count; i++)
         {
             if (playerIds[i] == playerName)
             {
-                releventRole = roles[i];
+                roleInfo = ReferenceInfo.referenceInfo.RoleInformation(roles[i]);
             }
         }
 
         // Finding Win Type
-        for (int i = 0; i < ReferenceInfo.referenceInfo.rolesInfo.Length; i++)
-        {
-            if (releventRole == ReferenceInfo.referenceInfo.rolesInfo[i].name)
-            {
-                releventWinType = ReferenceInfo.referenceInfo.rolesInfo[i].roleWinType;
-                // End
-                i = ReferenceInfo.referenceInfo.rolesInfo.Length;
-            }
-        }
+
         // Chaning Team count by win type
-        if (releventWinType == "innocent")
+        if (roleInfo.roleWinType == "innocent")
         {
             innocentAlive += count;
         }
-        if (releventWinType == "traitor")
+        if (roleInfo.roleWinType == "traitor")
         {
             traitorAlive += count;
         }
-        if (releventWinType == "solo")
+        if (roleInfo.roleWinType == "solo")
         {
             soloAlive += count;
         }
@@ -375,26 +368,17 @@ public class NetworkGameInfo : NetworkBehaviour
     [Server]
     public void RoleCountByRole(string roleName, int amount, bool detectWin)
     {
-        string winType = "";
+        RoleInfo roleInfo = ReferenceInfo.referenceInfo.RoleInformation(roleName);
 
-        // Finding win type
-        for (int i = 0; i < ReferenceInfo.referenceInfo.rolesInfo.Length; i++)
-        {
-            if (roleName == ReferenceInfo.referenceInfo.rolesInfo[i].name)
-            {
-                winType = ReferenceInfo.referenceInfo.rolesInfo[i].roleWinType;
-            }
-        }
-
-        if (winType == "innocent")
+        if (roleInfo.roleWinType == "innocent")
         {
             RawRoleCount(amount, 0,0);
         }
-        if (winType == "traitor")
+        if (roleInfo.roleWinType == "traitor")
         {
             RawRoleCount(0, amount, 0);
         }
-        if (winType == "solo")
+        if (roleInfo.roleWinType == "solo")
         {
             RawRoleCount(0, 0, amount);
         }

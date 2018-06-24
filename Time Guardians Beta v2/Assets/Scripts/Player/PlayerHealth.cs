@@ -26,7 +26,7 @@ public class PlayerHealth : NetworkBehaviour
         {
             CmdInflictSelfHarm(1, 0);
         }
-        if (transform.position.y < -100)
+        if (transform.position.y < -100 && isLocalPlayer)
         {
             CmdInflictSelfHarm(1, 0);
         }
@@ -53,6 +53,11 @@ public class PlayerHealth : NetworkBehaviour
     [Command]
     void CmdInflictSelfHarm(int damage, int direction)
     {
+        if (Player.player != null)
+        {
+            Player.player.cmds++;
+        }
+
         TakeDamage(damage, direction, "");
     }
 
@@ -82,23 +87,17 @@ public class PlayerHealth : NetworkBehaviour
             }
         }
 
-        // Play Hurt Sound
-
-        if (lastHitElapsed > 0.3f)
-        {
-            Vector3 pos = new Vector3();
-            Vector2 volume = new Vector2(0.1f, 0.2f);
-            Vector2 pitch = new Vector2(0.8f, 1f);
-
-            player.playerSounds.PlaySound("hurt", pos, volume, pitch, 10, true);
-        }
-
         return died;
     }
 
     [ClientRpc]
     void RpcTakeDamage(bool died, int damage, int direction)
     {
+        if (Player.player != null)
+        {
+            Player.player.rpcs++;
+        }
+
         if (died)
         {
             player.Die();
@@ -117,6 +116,17 @@ public class PlayerHealth : NetworkBehaviour
             {
                 PlayerCanvas.canvas.ReceiveDamage(2, direction);
             }
+        }
+
+        // Play Hurt Sound
+
+        if (lastHitElapsed > 0.3f)
+        {
+            Vector3 pos = new Vector3();
+            Vector2 volume = new Vector2(0.1f, 0.2f);
+            Vector2 pitch = new Vector2(0.8f, 1f);
+
+            player.playerSounds.PlaySound("hurt", pos, volume, pitch, 10, false);
         }
 
         //

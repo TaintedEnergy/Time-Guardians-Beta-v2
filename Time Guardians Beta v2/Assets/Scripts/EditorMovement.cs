@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class EditorMovement : MonoBehaviour
 {
 
     Rigidbody rb;
@@ -37,10 +37,6 @@ public class PlayerMovement : MonoBehaviour
     bool isGrounded;
 
     // #Dom (all under)
-
-    public Player player;
-
-    public float itemDragMultiplier = 1;
 
     public Vector3 moveDirection;
     int directions;
@@ -89,34 +85,10 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        //Crouching
-        /* if (Input.GetKey(KeyCode.LeftControl) && Grounded())
-        {
-            //Is crouching
-            capsuleCollider.height = height / 2;
-            //crouchMultiplier = settableCrouchMultiplier;
-            for (int i = 0; i < settableCrouchMultiplier.Length; i++)
-            {
-                crouchMultiplier[i] = settableCrouchMultiplier[i];
-            }
-            Debug.Log(crouchMultiplier[1]);
-
-        }
-        else
-        {
-            //Not crouching
-            capsuleCollider.height = height;
-            for (int i = 0; i < crouchMultiplier.Length; i++)
-            {
-                crouchMultiplier[i] = 1;
-            }
-            
-        } */
-
         jumpTime++;
 
         // Sprinting
-        if (Input.GetButton("Fire3") && Input.GetKey("w") && !Input.GetKey("s") && !Input.GetKey("a") && !Input.GetKey("d") && player != null && !player.playerShooting.scoped)
+        if (Input.GetButton("Fire3") && Input.GetKey("w") && !Input.GetKey("s") && !Input.GetKey("a") && !Input.GetKey("d"))
         {
             sprintMultiplier = settableSprintMultiplier;
         }
@@ -131,29 +103,26 @@ public class PlayerMovement : MonoBehaviour
         directions = 0;
 
         #region WASD
-
-        if (!Cursor.visible)
+        
+        if (Input.GetKey("w"))
         {
-            if (Input.GetKey("w"))
-            {
-                moveDirection += transform.forward * walkSpeed;
-                directions++;
-            }
-            if (Input.GetKey("s"))
-            {
-                moveDirection += -transform.forward * walkSpeed;
-                directions++;
-            }
-            if (Input.GetKey("d"))
-            {
-                moveDirection += transform.right * strafeSpeed;
-                directions++;
-            }
-            if (Input.GetKey("a"))
-            {
-                moveDirection += -transform.right * strafeSpeed;
-                directions++;
-            }
+            moveDirection += transform.forward * walkSpeed;
+            directions++;
+        }
+        if (Input.GetKey("s"))
+        {
+            moveDirection += -transform.forward * walkSpeed;
+            directions++;
+        }
+        if (Input.GetKey("d"))
+        {
+            moveDirection += transform.right * strafeSpeed;
+            directions++;
+        }
+        if (Input.GetKey("a"))
+        {
+            moveDirection += -transform.right * strafeSpeed;
+            directions++;
         }
         #endregion
 
@@ -170,39 +139,8 @@ public class PlayerMovement : MonoBehaviour
         // Add Multipliers
         if (directions >= 1)
         {
-            // Drag
-            if (player.playerShooting.itemInfo != null)
-            {
-                if (sprintMultiplier > 1)
-                {
-                    itemDragMultiplier = player.playerShooting.itemInfo.sprintDrag;
-                }
-                else if (player.playerShooting.scoped)
-                {
-                    itemDragMultiplier = player.playerShooting.itemInfo.scopeDrag;
-                }
-                else if (itemDragMultiplier != player.playerShooting.itemInfo.walkDrag)
-                {
-                    itemDragMultiplier = player.playerShooting.itemInfo.walkDrag;
-                }
-            }
-            else // No Item Info
-            {
-                itemDragMultiplier = 1;
-            }
-
             // Move player (set velocity)
-            moveDirection *= sprintMultiplier * crouchMultiplier[0] / itemDragMultiplier;
-        }
-
-        // Was suddenly hit
-        if (player != null)
-        {
-            if (!Grounded() && jumpTime > 100 && player.velocities[0].magnitude - player.velocities[4].magnitude > 6)
-            {
-                glideTime = 30;
-                waitingForGrounded = 3;
-            }
+            moveDirection *= sprintMultiplier * crouchMultiplier[0];
         }
 
         // Set TouchingAndJumped
@@ -257,100 +195,6 @@ public class PlayerMovement : MonoBehaviour
         // Insuring Y value is untouched
         rb.velocity = new Vector3(rb.velocity.x, y, rb.velocity.z);
 
-        // Falling
-
-        if (player != null)
-        {
-            // If falling
-            if (holdMovement.GetBool("Falling"))
-            {
-                if (stepTime >= 1)
-                {
-                    Vector3 pos = Vector3.zero;
-                    Vector2 vol = new Vector2(0.4f, 0.5f);
-                    Vector2 pit = new Vector2(0.7f, 0.9f);
-
-                    player.playerSounds.PlaySound("step", pos, vol, pit, 10, true);
-                }
-
-                if (!player.playerShooting.scoped)
-                {
-                    PlayerCanvas.canvas.EditReticuleSize(player.playerShooting.itemInfo.sprintReticule, reticuleSpeed);
-                }
-
-                stepTime = -1;
-            }
-            // If not falling
-            else
-            {
-                // If landed
-                if (stepTime == -1)
-                {
-                    Vector3 pos = Vector3.zero;
-                    Vector2 vol = new Vector2(0.4f, 0.5f);
-                    Vector2 pit = new Vector2(0.95f, 1f);
-
-                    player.playerSounds.PlaySound("step", pos, vol, pit, 10, true);
-
-                    stepTime = 0;
-                }
-
-                // If walking
-                if (isMoving && moveDirection != Vector3.zero)
-                {
-                    stepTime += 2;
-
-                    // If sprinting
-                    if (sprintMultiplier > 1 && (!player.playerShooting.scoped || (player.playerShooting.scoped && player.playerShooting.itemInfo.canUseWhileSprinting)))
-                    {
-                        stepTime += Random.Range(1f, 1.5f);
-
-                        if (!player.playerShooting.scoped)
-                        {
-                            PlayerCanvas.canvas.EditReticuleSize(player.playerShooting.itemInfo.sprintReticule, reticuleSpeed);
-                        }
-                    }
-                    else // If not sprinting
-                    {
-                        if (!player.playerShooting.scoped)
-                        {
-                            PlayerCanvas.canvas.EditReticuleSize(player.playerShooting.itemInfo.walkReticule, reticuleSpeed);
-                        }
-                    }
-                }
-                // When stop walking
-                if (moveDirection == Vector3.zero)
-                {
-                    if (stepTime >= 30)
-                    {
-                        Vector3 pos = Vector3.zero;
-                        Vector2 vol = new Vector2(0.4f, 0.5f);
-                        Vector2 pit = new Vector2(1f, 1f);
-
-                        player.playerSounds.PlaySound("step", pos, vol, pit, 10, true);
-                    }
-
-                    if (!player.playerShooting.scoped)
-                    {
-                        PlayerCanvas.canvas.EditReticuleSize(player.playerShooting.itemInfo.reticuleSpacing, reticuleSpeed);
-                    }
-
-                    stepTime = 0;
-                }
-                // Full Step sound
-                if (stepTime >= 100)
-                {
-                    Vector3 pos = Vector3.zero;
-                    Vector2 vol = new Vector2(0.4f, 0.5f);
-                    Vector2 pit = new Vector2(1f, 1.1f);
-
-                    player.playerSounds.PlaySound("step", pos, vol, pit, 20, true);
-
-                    stepTime -= 100;
-                }
-            }
-        }
-
         //Jump Physics
         if (rb.velocity.y < 0)
         {
@@ -391,67 +235,12 @@ public class PlayerMovement : MonoBehaviour
                 holdMovement.SetBool("Falling", false);
             }
         }
-        // Fall Damage
-        if (player != null)
-        {
-            FallDamage();
-        }
 
         // Untouching
         if (touching > 0)
         {
             touching = 0;
         }
-    }
-
-    void FallDamage()
-    {
-        if (holdMovement.GetBool("Falling"))
-        {
-            fallAminTime++;
-        }
-        else
-        {
-            fallAminTime = 0;
-        }
-
-        // Fall Damage
-        if (rb.velocity.y < -1)
-        {
-            lastDownwardVelocity = rb.velocity.y;
-        }
-
-        if (rb.velocity.y < -1)
-        {
-            if (fallTime == 0)
-            {
-                lastHight = transform.position.y;
-            }
-
-            fallTime++;
-        }
-        else
-        {
-            if (fallTime != 0)
-            {
-                int damage = 0;
-
-                if (lastHight - hight > 5)
-                {
-                    damage = (int)(lastHight - hight - 5) / 2 * (int)-lastDownwardVelocity / 4;
-                    print("Fell and took " + damage + " damage");
-                }
-
-                if (damage > 0)
-                {
-                    GetComponent<PlayerHealth>().RequestSelfHarm(damage, 0);
-                }
-
-                fallTime = 0;
-            }
-            lastHight = hight;
-        }
-        hight = transform.position.y;
     }
 
     bool Grounded()
@@ -505,4 +294,3 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 }
-//BTW hey Dom :)

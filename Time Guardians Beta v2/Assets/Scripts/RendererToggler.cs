@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 public class RendererToggler : MonoBehaviour
 {
@@ -7,10 +8,14 @@ public class RendererToggler : MonoBehaviour
     [SerializeField] bool enabledOnLoad = false;
 
     Renderer[] renderers;
+    Player player;
+
+    bool state;
 
     void Awake()
     {
         renderers = GetComponentsInChildren<Renderer>(true);
+        player = transform.root.GetComponent<Player>();
 
         if (enabledOnLoad)
             EnableRenderers();
@@ -22,7 +27,9 @@ public class RendererToggler : MonoBehaviour
     public void ToggleRenderersDelayed(bool isOn)
     {
         if (isOn)
+        {
             Invoke("EnableRenderers", turnOnDelay);
+        }
         else
         {
             Invoke("DisableRenderers", turnOffDelay);
@@ -35,6 +42,7 @@ public class RendererToggler : MonoBehaviour
         {
             renderers[i].enabled = true;
         }
+        state = true;
     }
 
     public void DisableRenderers()
@@ -43,6 +51,7 @@ public class RendererToggler : MonoBehaviour
         {
             renderers[i].enabled = false;
         }
+        state = false;
     }
 
     //Will be used to change the color of the players for different options

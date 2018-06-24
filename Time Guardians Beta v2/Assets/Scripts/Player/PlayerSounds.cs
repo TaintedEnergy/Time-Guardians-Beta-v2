@@ -92,12 +92,22 @@ public class PlayerSounds : NetworkBehaviour {
     [Command]
     void CmdPlaySound(string soundName, Vector3 pos, Vector2 volume, Vector2 pitch, float maxDistance)
     {
+        if (Player.player != null)
+        {
+            Player.player.cmds++;
+        }
+
         RpcPlaySound(soundName, pos, volume, pitch, maxDistance);
     }
 
     [ClientRpc]
     void RpcPlaySound(string soundName, Vector3 pos, Vector2 volume, Vector2 pitch, float maxDistance)
     {
+        if (Player.player != null)
+        {
+            Player.player.rpcs++;
+        }
+
         if (!isLocalPlayer)
         {
             PlaySound(soundName, pos, volume, pitch, maxDistance, false);
