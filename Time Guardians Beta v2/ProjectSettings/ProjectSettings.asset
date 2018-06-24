@@ -4,7 +4,11 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 15
+<<<<<<< HEAD
   productGUID: 8994ea34d84ab8549ac0e343db072140
+=======
+  productGUID: 653125f4c00921943b35ce744fc0b37c
+>>>>>>> 9ee041ef1cb5a2a59e24b3e826a30ab2d6ae86c0
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -625,6 +629,7 @@ PlayerSettings:
     daydream:
       daydreamIconForeground: {fileID: 0}
       daydreamIconBackground: {fileID: 0}
+<<<<<<< HEAD
   cloudServicesEnabled:
     Build: 1
     UNet: 1
@@ -633,6 +638,14 @@ PlayerSettings:
   cloudProjectId: 3d7aef75-06dd-4fca-aa6c-ba80f4af6564
   projectName: Time Guardians Beta
   organizationId: taintedflame-games
+=======
+  cloudServicesEnabled: {}
+  facebookSdkVersion: 7.9.4
+  apiCompatibilityLevel: 2
+  cloudProjectId: 
+  projectName: 
+  organizationId: 
+>>>>>>> 9ee041ef1cb5a2a59e24b3e826a30ab2d6ae86c0
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0

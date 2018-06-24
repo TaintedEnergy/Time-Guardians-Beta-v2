@@ -476,6 +476,7 @@ namespace Prototype.NetworkLobby
             PlayerCanvas.canvas = null;
             PlayerCanvas.selectedShop = null;
             PickUp.pickUps = new List<GameObject>();
+            print("I'mm an Alabama...");
         }
     }
 }
